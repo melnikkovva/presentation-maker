@@ -61,23 +61,23 @@ export function TextObject(props: TextObjectProps) {
         y: position.y,
         enabled: isInteractive && props.isSelected,
         onResize: (newWidth, newHeight, newX, newY) => {
-        setPosition({ x: newX, y: newY });
-        if (props.onObjectResize) {
-            const actualWidth = newWidth / scale;
-            const actualHeight = newHeight / scale;
-            const actualX = newX / scale;
-            const actualY = newY / scale;
-            props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
-        }
+            setPosition({ x: newX, y: newY });
+            if (props.onObjectResize) {
+                const actualWidth = newWidth / scale;
+                const actualHeight = newHeight / scale;
+                const actualX = newX / scale;
+                const actualY = newY / scale;
+                props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
+            }
         },
         onResizeEnd: (newWidth, newHeight, newX, newY) => {
-        if (props.onObjectResize) {
-            const actualWidth = newWidth / scale;
-            const actualHeight = newHeight / scale;
-            const actualX = newX / scale;
-            const actualY = newY / scale;
-            props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
-        }
+            if (props.onObjectResize) {
+                const actualWidth = newWidth / scale;
+                const actualHeight = newHeight / scale;
+                const actualX = newX / scale;
+                const actualY = newY / scale;
+                props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
+            }
         },
         minWidth: 50,
         minHeight: 30

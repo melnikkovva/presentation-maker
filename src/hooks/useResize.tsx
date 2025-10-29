@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 type ResizeHandleAxis = 's' | 'w' | 'e' | 'n' | 'sw' | 'nw' | 'se' | 'ne';
 
@@ -9,7 +9,6 @@ type ResizeArgs = {
     y: number,
     onResize?: (newWidth: number, newHeight: number, newX: number, newY: number) => void,
     onResizeEnd?: (newWidth: number, newHeight: number, newX: number, newY: number) => void,
-    lockAspectRatio?: boolean,
     minWidth?: number,
     minHeight?: number,
     enabled?: boolean,
@@ -43,7 +42,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
         y,
         onResize,
         onResizeEnd,
-        lockAspectRatio = false,
         minWidth = 20,
         minHeight = 20,
         enabled = true,
@@ -57,7 +55,7 @@ export function useResize(args: ResizeArgs): ResizeResult {
         y
     })
 
-    const calculateNewSize = useCallback((
+    function calculateNewSize(
         axis: ResizeHandleAxis,
         deltaX: number,
         deltaY: number,
@@ -65,11 +63,13 @@ export function useResize(args: ResizeArgs): ResizeResult {
         startHeight: number,
         startX: number,
         startY: number
-    ) => {
+    ) {
         let newWidth = startWidth
         let newHeight = startHeight
         let newX = startX
         let newY = startY
+
+        const shouldLockAspectRatio =  ['sw', 'nw', 'se', 'ne'].includes(axis)
 
         switch (axis) {
             case 'e': 
@@ -87,51 +87,79 @@ export function useResize(args: ResizeArgs): ResizeResult {
                 newY = startY + deltaY
                 break
             case 'se': 
-                newWidth = Math.max(minWidth, startWidth + deltaX)
-                newHeight = Math.max(minHeight, startHeight + deltaY)
+                if (shouldLockAspectRatio) {
+                    const aspectRatio = startWidth / startHeight
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        newWidth = Math.max(minWidth, startWidth + deltaX)
+                        newHeight = newWidth / aspectRatio
+                    } else {
+                        newHeight = Math.max(minHeight, startHeight + deltaY)
+                        newWidth = newHeight * aspectRatio
+                    }
+                } else {
+                    newWidth = Math.max(minWidth, startWidth + deltaX)
+                    newHeight = Math.max(minHeight, startHeight + deltaY)
+                }
                 break
             case 'sw':
-                newWidth = Math.max(minWidth, startWidth - deltaX)
-                newHeight = Math.max(minHeight, startHeight + deltaY)
-                newX = startX + deltaX
+                if (shouldLockAspectRatio) {
+                    const aspectRatio = startWidth / startHeight
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        newWidth = Math.max(minWidth, startWidth - deltaX)
+                        newHeight = newWidth / aspectRatio
+                    } else {
+                        newHeight = Math.max(minHeight, startHeight + deltaY)
+                        newWidth = newHeight * aspectRatio
+                    }
+                    newX = startX + (startWidth - newWidth)
+                } else {
+                    newWidth = Math.max(minWidth, startWidth - deltaX)
+                    newHeight = Math.max(minHeight, startHeight + deltaY)
+                    newX = startX + deltaX
+                }
                 break
             case 'ne':
-                newWidth = Math.max(minWidth, startWidth + deltaX)
-                newHeight = Math.max(minHeight, startHeight - deltaY)
-                newY = startY + deltaY
+                if (shouldLockAspectRatio) {
+                    const aspectRatio = startWidth / startHeight
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        newWidth = Math.max(minWidth, startWidth + deltaX)
+                        newHeight = newWidth / aspectRatio
+                    } else {
+                        newHeight = Math.max(minHeight, startHeight - deltaY)
+                        newWidth = newHeight * aspectRatio
+                    }
+                    newY = startY + (startHeight - newHeight)
+                } else {
+                    newWidth = Math.max(minWidth, startWidth + deltaX)
+                    newHeight = Math.max(minHeight, startHeight - deltaY)
+                    newY = startY + deltaY
+                }
                 break
             case 'nw':
-                newWidth = Math.max(minWidth, startWidth - deltaX)
-                newHeight = Math.max(minHeight, startHeight - deltaY)
-                newX = startX + deltaX
-                newY = startY + deltaY
+                if (shouldLockAspectRatio) {
+                    const aspectRatio = startWidth / startHeight
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        newWidth = Math.max(minWidth, startWidth - deltaX)
+                        newHeight = newWidth / aspectRatio
+                    } else {
+                        newHeight = Math.max(minHeight, startHeight - deltaY)
+                        newWidth = newHeight * aspectRatio
+                    }
+                    newX = startX + (startWidth - newWidth)
+                    newY = startY + (startHeight - newHeight)
+                } else {
+                    newWidth = Math.max(minWidth, startWidth - deltaX)
+                    newHeight = Math.max(minHeight, startHeight - deltaY)
+                    newX = startX + deltaX
+                    newY = startY + deltaY
+                }
                 break
-        }
-
-        if (lockAspectRatio) {
-            const aspectRatio = startWidth / startHeight
-            
-            if (axis.includes('e') || axis.includes('w')) {
-                const calculatedHeight = newWidth / aspectRatio
-                
-                if (axis.includes('n')) {
-                    newY = startY + (startHeight - calculatedHeight)
-                }
-                newHeight = Math.max(minHeight, calculatedHeight)
-            } else if (axis.includes('s') || axis.includes('n')) {
-                const calculatedWidth = newHeight * aspectRatio
-                
-                if (axis.includes('w')) {
-                    newX = startX + (startWidth - calculatedWidth)
-                }
-                newWidth = Math.max(minWidth, calculatedWidth)
-            }
         }
 
         return { newWidth, newHeight, newX, newY }
-    }, [minWidth, minHeight, lockAspectRatio])
+    }
 
-    const onResizeHandleMouseDown = useCallback((axis: ResizeHandleAxis, event: React.MouseEvent) => {
+    function onResizeHandleMouseDown(axis: ResizeHandleAxis, event: React.MouseEvent) {
         if (!enabled) return
         
         event.preventDefault()
@@ -147,7 +175,7 @@ export function useResize(args: ResizeArgs): ResizeResult {
             mouseStartX: event.clientX,
             mouseStartY: event.clientY,
         })
-    }, [enabled, currentSize])
+    }
 
     useEffect(() => {
         const onMouseMove = (event: MouseEvent) => {
@@ -192,7 +220,7 @@ export function useResize(args: ResizeArgs): ResizeResult {
             window.removeEventListener('mousemove', onMouseMove)
             window.removeEventListener('mouseup', onMouseUp)
         }
-    }, [resizeState, calculateNewSize, onResize, onResizeEnd, currentSize])
+    }, [resizeState, onResize, onResizeEnd, currentSize])
 
     useEffect(() => {
         if (!resizeState?.isResizing) {

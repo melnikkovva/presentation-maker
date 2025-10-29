@@ -60,7 +60,6 @@ export function ImageObject(props: ImageObjectProps) {
         x: position.x,
         y: position.y,
         enabled: isInteractive && props.isSelected,
-        lockAspectRatio: true,
         onResize: (newWidth, newHeight, newX, newY) => {
             setPosition({ x: newX, y: newY });
             if (props.onObjectResize) {
@@ -102,12 +101,12 @@ export function ImageObject(props: ImageObjectProps) {
         props.onImageClick?.(props.object.id);
     }
 
-    const containerClasses = [
+    const containerClass = [
         styles.container,
         props.isSelected ? styles.containerSelected : ''
     ].join(' ');
 
-    const imageClasses = [
+    const imageClass = [
         styles.image,
         drag.isDragging ? styles.cursorGrabbing : styles.cursorPointer
     ].join(' ');
@@ -120,10 +119,10 @@ export function ImageObject(props: ImageObjectProps) {
     };
 
     return (
-        <div className={containerClasses} style={containerStyle}>
+        <div className={containerClass} style={containerStyle}>
             <img
                 src={props.object.src}
-                className={imageClasses}
+                className={imageClass}
                 onClick={handleClick}
                 onMouseDown={drag.onMouseDown}
             />
