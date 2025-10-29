@@ -7,7 +7,11 @@ interface SlideProps {
     type: Slide
     isPreview: boolean;
     onObjectClick?: (objectId: string, backgroundColor: string) => void;
+    onObjectMove?: (objectId: string, newX: number, newY: number) => void;
+    onObjectResize?: (objectId: string, newWidth: number, newHeight: number, newX: number, newY: number) => void; 
     className?: string;
+    selectedObjectId?: string | null;
+    currentSlideId?: string | null;
 }
 
 export function SlideRender (props: SlideProps) {
@@ -24,20 +28,13 @@ export function SlideRender (props: SlideProps) {
         }
     };
 
-    function getBackgroundColor(): string {
-        if (props.type.background.type === 'color') {
-            return props.type.background.color;
-        } else {
-            return 'image'; 
-        }
-    }
-
     const style: React.CSSProperties = {
         ...getSlideBackgroundStyle(),
         position: 'relative',
         width: '100%',
-        height: '100%'
-        };
+        height: '100%',
+        pointerEvents: props.isPreview ? 'none' : 'auto' 
+    };
 
     return (
         <div style={style}>
@@ -49,7 +46,14 @@ export function SlideRender (props: SlideProps) {
                                 key={object.id}
                                 object={object}
                                 isPreview={props.isPreview}
-                                onTextClick={(objectId) => props.onObjectClick?.(objectId, getBackgroundColor())}
+                                onObjectMove={props.isPreview 
+                                                ? undefined 
+                                                : props.onObjectMove} 
+                                onObjectResize={props.isPreview 
+                                                ? undefined 
+                                                : props.onObjectResize} 
+                                currentSlideId={props.currentSlideId}
+                                isSelected={(object.id) === props.selectedObjectId}
                             />
                         );
                     } else {
@@ -58,7 +62,10 @@ export function SlideRender (props: SlideProps) {
                                 key={object.id}
                                 object={object}
                                 isPreview={props.isPreview}
-                                onImageClick={(objectId) => props.onObjectClick?.(objectId, getBackgroundColor())}
+                                onObjectMove={props.isPreview ? undefined : props.onObjectMove} 
+                                onObjectResize={props.isPreview ? undefined : props.onObjectResize} 
+                                currentSlideId={props.currentSlideId}
+                                isSelected={(object.id) === props.selectedObjectId}
                             />
                         );
                     }

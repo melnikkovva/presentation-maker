@@ -1,19 +1,20 @@
+import { useState } from 'react';
 import { dispatch } from './store/editor';
-import { renamePresentation, selectSlide } from './store/functions/functions_of_presentation';
-
-import type { Presentation } from './store/types/types_of_presentation';
+import { renamePresentation, selectSlide, reorderSlides } from './store/functions/functions_of_presentation';
+import type { Presentation, Slide } from './store/types/types_of_presentation'; 
 import { PresentationTitle } from './views/PresentationTitle/PresentationTitle';
 import { Workspace } from './views/Workspace/Workspace';
 import { SlideList } from './views/SlideList/SlideList';
 import { Toolbar } from './views/Toolbar/Toolbar';
 import styles from './App.module.css';
 
-
 interface AppProps {
     presentation: Presentation;
 }
 
 export function App(props: AppProps) {
+    const [isBackgroundMenuOpen, setIsBackgroundMenuOpen] = useState(false);
+
     function handleTitleChange(newTitle: string): void {
         dispatch(renamePresentation, newTitle);
         console.log('Новое название:', newTitle);
@@ -28,6 +29,18 @@ export function App(props: AppProps) {
         console.log(`Выбран слайд: ${slideId}, порядковый номер: ${index + 1}`);
     }
 
+    function handleOpenBackgroundMenu(): void {
+        setIsBackgroundMenuOpen(true);
+    }
+
+    function handleCloseBackgroundMenu(): void {
+        setIsBackgroundMenuOpen(false);
+    }
+
+    function handleSlidesReorder(reorderedSlides: Slide[]): void {
+        dispatch(reorderSlides, reorderedSlides);
+    }
+
     return (
         <div className={styles.app}>
             <PresentationTitle 
@@ -35,17 +48,27 @@ export function App(props: AppProps) {
                 onTitleChange={handleTitleChange}
             />
 
-            <Toolbar presentation={props.presentation} />
-
+            <Toolbar 
+                currentSlideId={props.presentation.slides.currentSlideId}
+                onOpenBackgroundMenu={handleOpenBackgroundMenu}
+                selectedObjectId={props.presentation.selection?.objectId || null}
+            />
+            
             <div className={styles.mainContainer}>
-                 <SlideList
-                    slides={props.presentation.slides.slides}
+                <SlideList
+                    slides={props.presentation.slides.slides} 
                     currentSlideId={props.presentation.slides.currentSlideId}
-                    onSlideClick={(slideId, index) => handleSlideClick(slideId, index)}
+                    onSlideClick={handleSlideClick}
+                    onSlidesReorder={handleSlidesReorder}
                 />
                 
-                <Workspace currentSlide={currentSlide} />
-                
+                <Workspace 
+                    currentSlide={currentSlide} 
+                    isBackgroundMenuOpen={isBackgroundMenuOpen}
+                    onCloseBackgroundMenu={handleCloseBackgroundMenu}
+                    currentSlideId={props.presentation.slides.currentSlideId}
+                    selectedObjectId={props.presentation.selection?.objectId}
+                />
             </div>
         </div>
     );

@@ -18,12 +18,18 @@ html, body {
     color: white;
 }
 
+.toolbar {
+  position: 'relative'; 
+  z-index: 1000;
+}
+
 .mainContainer {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    padding: 12px;
-    gap: 12px;
+  display: flex;
+  flex: 1;
+  padding: 12px;
+  gap: 12px;
+  overflow: hidden; 
+  min-height: 0
 }
 
 @media (max-width: 1024px) {

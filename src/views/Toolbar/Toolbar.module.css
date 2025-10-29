@@ -1,69 +1,195 @@
 .toolbar {
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border-radius: 12px;
-  margin-bottom: 16px;
   align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 100; 
 }
 
 .toolbarSection {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s ease;
+}
+
+.toolbarSection:hover {
   background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .sectionTitle {
-  margin-right: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "Geologica", sans-serif;
+  letter-spacing: 0.3px;
+  margin-right: 6px;
   white-space: nowrap;
 }
 
 .buttonGroup {
   display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.buttonRow {
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownContent {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  min-width: 180px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(18px);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: dropdownAppear 0.2s ease-out;
+  z-index: 1000; 
+}
+
+@keyframes dropdownAppear {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownItem {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #2d3748;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+}
+
+.urlInputContainer {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
 }
 
-@media (max-width: 1024px) {
-  .toolbar {
-    padding: 10px 12px;
-    gap: 6px;
-  }
-  
-  .toolbarSection {
-    padding: 6px 10px;
-  }
-  
-  .sectionTitle {
-    font-size: 11px;
-  }
+.urlInput {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a202c;
+  transition: all 0.2s ease;
 }
 
-@media (max-width: 768px) {
+.urlInput:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.submitButton {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fileButton {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.fileButton:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.colorPicker {
+  width: 40px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.colorPicker:hover {
+  transform: scale(1.05);
+}
+
+.backgroundControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.colorInputContainer label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.urlInputContainer input {
+  min-width: 120px;
+}
+
+@media (max-width: 900px) {
   .toolbar {
     flex-wrap: wrap;
+    gap: 6px;
     padding: 8px;
   }
-  
   .toolbarSection {
-    min-width: auto;
+    flex: 1;
+    min-width: 140px;
+    justify-content: space-between;
   }
 }

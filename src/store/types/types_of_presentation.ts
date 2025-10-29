@@ -71,7 +71,4 @@ type BaseSlideObject = {
     h: number;
 }
 
-export type Editor = {
-    presentation: Presentation,
-    selection: Selection,
-}
+export type ModalType = 'imageUrl' | 'backgroundUrl' | 'color' | null;

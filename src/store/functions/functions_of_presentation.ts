@@ -227,8 +227,19 @@ export function changeObjectPosition(presentation: Presentation, slideId: string
         }
     };
 }
-
-export function changeObjectSize(presentation: Presentation, slideId: string, objectId: string, width: number, height: number): Presentation {
+export function changeObjectSize(
+    presentation: Presentation, 
+    payload: { 
+        slideId: string; 
+        objectId: string; 
+        width: number; 
+        height: number; 
+        x: number;  
+        y: number;  
+    }
+): Presentation {
+    const { slideId, objectId, width, height, x, y } = payload;
+    
     const slides = presentation.slides.slides.map(slide => {
         if (slide.id !== slideId) return slide;
 
@@ -236,7 +247,13 @@ export function changeObjectSize(presentation: Presentation, slideId: string, ob
             ...slide,
             slideObjects: slide.slideObjects.map(obj => {
                 if (obj.id === objectId) {
-                    return { ...obj, w: width, h: height };
+                    return { 
+                        ...obj, 
+                        w: Math.round(width), 
+                        h: Math.round(height),
+                        x: Math.round(x),     
+                        y: Math.round(y)     
+                    };
                 }
                 return obj;
             })
@@ -252,7 +269,9 @@ export function changeObjectSize(presentation: Presentation, slideId: string, ob
     };
 }
 
-export function changeSlideBackground(presentation: Presentation, slideId: string, background: Background): Presentation {
+export function changeSlideBackground(presentation: Presentation, payload: {slideId: string, background: Background}): Presentation {
+    const { slideId, background } = payload;
+    
     const slides = presentation.slides.slides.map(slide => {
         if (slide.id !== slideId) return slide;
 
@@ -277,4 +296,14 @@ export function createColorBackground(color: string): Background {
 
 export function createImageBackground(src: string): Background {
     return { type: 'picture', src: src };
+}
+
+export function reorderSlides(presentation: Presentation, newSlidesOrder: Slide[]): Presentation {
+    return {
+        ...presentation,
+        slides: {
+            ...presentation.slides,
+            slides: newSlidesOrder
+        }
+    };
 }

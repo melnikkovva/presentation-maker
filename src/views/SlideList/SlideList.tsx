@@ -1,11 +1,12 @@
 import type { Slide } from '../../store/types/types_of_presentation';
 import styles from './SlideList.module.css';
-import { SlideRender } from '../SlideRender/SlideRender';
+import { DraggableSlideRender } from '../SlideRender/DraggableSlideRender';
 
 interface SlideListProps {
-    slides: Slide[];
+    slides: Slide[]; 
     currentSlideId: string | null;
     onSlideClick: (slideId: string, index: number) => void;
+    onSlidesReorder?: (reorderedSlides: Slide[]) => void;
 }
 
 export function SlideList(props: SlideListProps) {
@@ -13,37 +14,34 @@ export function SlideList(props: SlideListProps) {
         props.onSlideClick(slideId, index);
     };
 
+    function handleSlideReorder(fromIndex: number, toIndex: number): void {
+        if (!props.onSlidesReorder) return;
+        
+        const reorderedSlides = props.slides; 
+        const [movedSlide] = reorderedSlides.splice(fromIndex, 1);
+        reorderedSlides.splice(toIndex, 0, movedSlide);
+        
+        props.onSlidesReorder(reorderedSlides);
+    }
+
     return (
         <div className={styles.slideListContainer}>
             <div className={styles.slideListHeader}>
-                <div className={styles.slideListTitle}>Слайды ({props.slides.length})</div>
+                <div className={styles.slideListTitle}>
+                    Слайды ({props.slides.length})
+                </div> 
             </div>
             
             <div className={styles.slideList}>
-                {props.slides.map((slide, index) => (
-                    <div
+                {props.slides.map((slide, index) => ( 
+                    <DraggableSlideRender
                         key={slide.id}
-                        className={
-                            slide.id === props.currentSlideId 
-                                ? `${styles.slideItem} ${styles.activeSlide}`
-                                : styles.slideItem
-                        }
-                        onClick={() => handleSlideClick(slide.id, index)} 
-                    >
-                        <div className={styles.slideHeader}>
-                            <div className={styles.slideNumber}>Слайд {index + 1}</div>
-                        </div>
-
-                        <div className={styles.slidePreview}>
-                            <div className={styles.slidePreviewContent}>
-                                <SlideRender
-                                    type={slide}
-                                    isPreview={true}
-                                    className={styles.previewSlide}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                        slide={slide}
+                        index={index}
+                        isActive={slide.id === props.currentSlideId}
+                        onSlideClick={handleSlideClick}
+                        onSlideReorder={handleSlideReorder}
+                    />
                 ))}
             </div>
         </div>
