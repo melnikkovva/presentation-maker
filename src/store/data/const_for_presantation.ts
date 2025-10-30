@@ -33,3 +33,5 @@ export const SLIDE_WIDTH = 1000;
 export const SLIDE_HEIGHT = 550; 
 export const PREVIEW_SCALE = 0.2; 
 export const DEFAULT_PADDING_TEXT_FIELD = 8;
+export const MIN_DIV_WIDTH = 20;
+export const MIN_DIV_HEIGHT = 20;

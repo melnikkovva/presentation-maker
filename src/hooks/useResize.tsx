@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { MIN_DIV_HEIGHT, MIN_DIV_WIDTH } from '../store/data/const_for_presantation';
+
 
 type ResizeHandleAxis = 's' | 'w' | 'e' | 'n' | 'sw' | 'nw' | 'se' | 'ne';
 
@@ -42,8 +44,8 @@ export function useResize(args: ResizeArgs): ResizeResult {
         y,
         onResize,
         onResizeEnd,
-        minWidth = 20,
-        minHeight = 20,
+        minWidth = MIN_DIV_WIDTH,
+        minHeight = MIN_DIV_HEIGHT,
         enabled = true,
     } = args
 

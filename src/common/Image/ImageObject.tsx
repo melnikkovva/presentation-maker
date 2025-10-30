@@ -5,7 +5,7 @@ import { PREVIEW_SCALE } from '../../store/data/const_for_presantation';
 import { dispatch } from '../../store/editor';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
-import { ResizeHandlesSimple } from '../../hooks/ResizeHandle';
+import { ResizeHandles } from '../../hooks/ResizeHandle';
 import styles from './ImageObject.module.css';
 
 interface ImageObjectProps {
@@ -128,7 +128,7 @@ export function ImageObject(props: ImageObjectProps) {
             />
 
             {props.isSelected && isInteractive && (
-            <ResizeHandlesSimple onMouseDown={resize.onResizeHandleMouseDown} />)}
+            <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />)}
         </div>
     );
 }

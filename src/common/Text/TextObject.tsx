@@ -5,7 +5,7 @@ import type { TextObject as TextObjectType } from '../../store/types/types_of_pr
 import { DEFAULT_PADDING_TEXT_FIELD, PREVIEW_SCALE } from '../../store/data/const_for_presantation';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
-import { ResizeHandlesSimple } from '../../hooks/ResizeHandle';
+import { ResizeHandles } from '../../hooks/ResizeHandle';
 import styles from './TextObject.module.css';
 
 interface TextObjectProps {
@@ -155,7 +155,7 @@ export function TextObject(props: TextObjectProps) {
         </div>
 
         {props.isSelected && isInteractive && (
-            <ResizeHandlesSimple onMouseDown={resize.onResizeHandleMouseDown} />
+            <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />
         )}
         </div>
     );

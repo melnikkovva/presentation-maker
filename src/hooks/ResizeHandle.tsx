@@ -7,7 +7,7 @@ interface ResizeHandlesSimpleProps {
   onMouseDown: (axis: ResizeHandleAxis, event: React.MouseEvent) => void;
 }
 
-export function ResizeHandlesSimple({ onMouseDown }: ResizeHandlesSimpleProps) {
+export function ResizeHandles({ onMouseDown }: ResizeHandlesSimpleProps) {
   const getHandleStyle = (axis: ResizeHandleAxis): React.CSSProperties => {
     switch (axis) {
       case 'nw': return { left: -4, top: -4, cursor: 'nw-resize' };

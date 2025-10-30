@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import * as React from 'react'
 
 type Axis = 'both' | 'x' | 'y'
 
@@ -21,7 +20,7 @@ type DndResult = {
 export function useDnd({
 	startX,
 	startY,
-	onDrag,
+	onDrag, 
 	onFinish,
 	axis = 'both',
 }: DndArgs): DndResult {
