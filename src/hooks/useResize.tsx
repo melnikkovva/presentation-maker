@@ -71,90 +71,66 @@ export function useResize(args: ResizeArgs): ResizeResult {
         let newX = startX
         let newY = startY
 
-        const shouldLockAspectRatio =  ['sw', 'nw', 'se', 'ne'].includes(axis)
+        const aspectRatio = startWidth / startHeight
 
         switch (axis) {
             case 'e': 
                 newWidth = Math.max(minWidth, startWidth + deltaX)
                 break
             case 'w': 
-                newWidth = Math.max(minWidth, startWidth - deltaX)
-                newX = startX + deltaX
+                const maxDeltaX = startWidth - minWidth
+                const actualDeltaX = Math.min(deltaX, maxDeltaX)
+                newWidth = Math.max(minWidth, startWidth - actualDeltaX)
+                newX = startX + actualDeltaX
                 break
             case 's': 
                 newHeight = Math.max(minHeight, startHeight + deltaY)
                 break
             case 'n': 
-                newHeight = Math.max(minHeight, startHeight - deltaY)
-                newY = startY + deltaY
+                const maxDeltaY = startHeight - minHeight
+                const actualDeltaY = Math.min(deltaY, maxDeltaY)
+                newHeight = Math.max(minHeight, startHeight - actualDeltaY)
+                newY = startY + actualDeltaY
                 break
-            case 'se': 
-                if (shouldLockAspectRatio) {
-                    const aspectRatio = startWidth / startHeight
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        newWidth = Math.max(minWidth, startWidth + deltaX)
-                        newHeight = newWidth / aspectRatio
-                    } else {
-                        newHeight = Math.max(minHeight, startHeight + deltaY)
-                        newWidth = newHeight * aspectRatio
-                    }
-                } else {
+            case 'se':      
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     newWidth = Math.max(minWidth, startWidth + deltaX)
+                    newHeight = newWidth / aspectRatio
+                } else {
                     newHeight = Math.max(minHeight, startHeight + deltaY)
+                    newWidth = newHeight * aspectRatio
                 }
                 break
             case 'sw':
-                if (shouldLockAspectRatio) {
-                    const aspectRatio = startWidth / startHeight
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        newWidth = Math.max(minWidth, startWidth - deltaX)
-                        newHeight = newWidth / aspectRatio
-                    } else {
-                        newHeight = Math.max(minHeight, startHeight + deltaY)
-                        newWidth = newHeight * aspectRatio
-                    }
-                    newX = startX + (startWidth - newWidth)
-                } else {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     newWidth = Math.max(minWidth, startWidth - deltaX)
+                    newHeight = newWidth / aspectRatio
+                } else {
                     newHeight = Math.max(minHeight, startHeight + deltaY)
-                    newX = startX + deltaX
+                    newWidth = newHeight * aspectRatio
                 }
+                newX = startX + (startWidth - newWidth)
                 break
             case 'ne':
-                if (shouldLockAspectRatio) {
-                    const aspectRatio = startWidth / startHeight
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        newWidth = Math.max(minWidth, startWidth + deltaX)
-                        newHeight = newWidth / aspectRatio
-                    } else {
-                        newHeight = Math.max(minHeight, startHeight - deltaY)
-                        newWidth = newHeight * aspectRatio
-                    }
-                    newY = startY + (startHeight - newHeight)
-                } else {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     newWidth = Math.max(minWidth, startWidth + deltaX)
+                    newHeight = newWidth / aspectRatio
+                } else {
                     newHeight = Math.max(minHeight, startHeight - deltaY)
-                    newY = startY + deltaY
+                    newWidth = newHeight * aspectRatio
                 }
+                newY = startY + (startHeight - newHeight)
                 break
             case 'nw':
-                if (shouldLockAspectRatio) {
-                    const aspectRatio = startWidth / startHeight
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        newWidth = Math.max(minWidth, startWidth - deltaX)
-                        newHeight = newWidth / aspectRatio
-                    } else {
-                        newHeight = Math.max(minHeight, startHeight - deltaY)
-                        newWidth = newHeight * aspectRatio
-                    }
-                    newX = startX + (startWidth - newWidth)
-                    newY = startY + (startHeight - newHeight)
-                } else {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     newWidth = Math.max(minWidth, startWidth - deltaX)
+                    newHeight = newWidth / aspectRatio
+                } else {
                     newHeight = Math.max(minHeight, startHeight - deltaY)
-                    newX = startX + deltaX
-                    newY = startY + deltaY
+                    newWidth = newHeight * aspectRatio
                 }
+                newX = startX + (startWidth - newWidth)
+                newY = startY + (startHeight - newHeight)
                 break
         }
 
