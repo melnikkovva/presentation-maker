@@ -1,7 +1,6 @@
 import type { Slide } from '../../store/types/types_of_presentation';
 import styles from './Workspace.module.css';
 import { SlideRender } from '../SlideRender/SlideRender';
-import { BackgroundMenu } from '../BackgroundMenu/BackgroundMenu';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../../store/data/const_for_presantation';
 import { changeObjectSize, changeObjectPosition } from '../../store/functions/functions_of_presentation'; // ← ДОБАВИТЬ resizeObject
 import { dispatch } from '../../store/editor';
@@ -9,8 +8,7 @@ import { dispatch } from '../../store/editor';
 interface WorkspaceProps {
     currentSlide: Slide | undefined;
     currentSlideIndex?: number;
-    isBackgroundMenuOpen: boolean;
-    onCloseBackgroundMenu: () => void;
+
     currentSlideId: string | null;
     selectedObjectId?: string | null;
 }
@@ -74,11 +72,6 @@ export function Workspace(props: WorkspaceProps) {
                 </div>
             </div>
 
-            <BackgroundMenu 
-                isOpen={props.isBackgroundMenuOpen}
-                onClose={props.onCloseBackgroundMenu}
-                currentSlideId={props.currentSlideId}
-            />
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { dispatch } from './store/editor';
 import { renamePresentation, selectSlide, reorderSlides } from './store/functions/functions_of_presentation';
+import { BackgroundMenu } from './views/BackgroundMenu/BackgroundMenu';
 import type { Presentation, Slide } from './store/types/types_of_presentation'; 
 import { PresentationTitle } from './views/PresentationTitle/PresentationTitle';
 import { Workspace } from './views/Workspace/Workspace';
@@ -64,10 +65,13 @@ export function App(props: AppProps) {
                 
                 <Workspace 
                     currentSlide={currentSlide} 
-                    isBackgroundMenuOpen={isBackgroundMenuOpen}
-                    onCloseBackgroundMenu={handleCloseBackgroundMenu}
                     currentSlideId={props.presentation.slides.currentSlideId}
                     selectedObjectId={props.presentation.selection?.objectId}
+                />
+                <BackgroundMenu 
+                    isOpen={isBackgroundMenuOpen}
+                    onClose={handleCloseBackgroundMenu}
+                    currentSlideId={props.presentation.slides.currentSlideId}
                 />
             </div>
         </div>

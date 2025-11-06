@@ -1,0 +1,40 @@
+.container {
+  position: absolute;
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.containerSelected {
+  border: 3px solid #eeb4eb;
+}
+
+.textContent {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  background: transparent;
+}
+
+.textContentLeft {
+  justify-content: flex-start;
+}
+
+.textContentCenter {
+  justify-content: center;
+}
+
+.textContentRight {
+  justify-content: flex-end;
+}
+
+.cursorPointer {
+  cursor: pointer;
+}
+
+.cursorGrabbing {
+  cursor: grabbing;
+}
