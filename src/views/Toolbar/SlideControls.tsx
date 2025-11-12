@@ -1,26 +1,25 @@
-import { dispatch } from '../../store/editor';
-import { addSlide, removeSlide } from '../../store/functions/functions_of_presentation';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { addSlide, removeSlide } from '../../store/actions/ActionCreators';
 import { Button } from '../../common/Button/Button';
 
 import addSlideIcon from '../../assets/icons/add-slide.png';
 import removeSlideIcon from '../../assets/icons/delete.png';
 
-interface SlideControlsProps {
-    currentSlideId: string | null;
-}
+export function SlideControls() {
+    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
+    const dispatch = useAppDispatch();
 
-export function SlideControls(props: SlideControlsProps) {
     function handleAddSlide(): void {
         console.log('Действие: добавлен слайд');
-        dispatch(addSlide);
-    };
+        dispatch(addSlide());
+    }
 
     function handleRemoveSlide(): void {
         console.log('Действие: удален слайд');
-        if (props.currentSlideId) {
-            dispatch(removeSlide, props.currentSlideId);
+        if (currentSlideId) {
+            dispatch(removeSlide(currentSlideId));
         }
-    };
+    }
 
     return (
         <div>

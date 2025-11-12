@@ -1,45 +1,35 @@
 import { useState, useRef } from 'react';
-import { dispatch } from '../../store/editor';
-import { addTextToSlide, addImageToSlide } from '../../store/functions/functions_of_presentation';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { addTextToSlide, addImageToSlide, removeObject } from '../../store/actions/ActionCreators';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
-import { removeObject } from '../../store/functions/functions_of_presentation';
 import styles from './Toolbar.module.css';
 
 import addTextIcon from '../../assets/icons/add-text.png';
 import addImageIcon from '../../assets/icons/add-image.png';
 import deleteObjectIcon from '../../assets/icons/delete-obj.png';
 
-interface ObjectControlsProps {
-    currentSlideId: string | null;
-    selectedObjectId: string | null;
-}
-
-export function ObjectControls(props: ObjectControlsProps) {
+export function ObjectControls() {
     const [imageUrl, setImageUrl] = useState('');
     const [showImageInput, setShowImageInput] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
+    const selectedObjectId = useAppSelector(state => state.presentation.selection?.objectId || null);
+    const dispatch = useAppDispatch();
 
     function handleAddText(): void {
-        if (!props.currentSlideId) return;
-        dispatch(addTextToSlide, {
-            slideId: props.currentSlideId,
-            text: "Новый текст"
-        });
+        if (!currentSlideId) return;
+        dispatch(addTextToSlide(currentSlideId, "Новый текст"));
     }
 
     function handleDeleteSelectedObject(): void {
-        if (!props.currentSlideId || !props.selectedObjectId) {
+        if (!currentSlideId || !selectedObjectId) {
             console.log('Нет выбранного объекта для удаления');
             return;
         }
-
-        dispatch(removeObject, {
-            slideId: props.currentSlideId,
-            objectId: props.selectedObjectId
-        });
-        
+        dispatch(removeObject(currentSlideId, selectedObjectId));
     }
 
     function handleAddImageFromComputer(): void {
@@ -49,7 +39,7 @@ export function ObjectControls(props: ObjectControlsProps) {
     function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>): void {
         const file = event.target.files?.[0];
         
-        if (!file || !props.currentSlideId) return;
+        if (!file || !currentSlideId) return;
 
         if (!file.type.startsWith('image/')) {
             console.log('Надо выбрать изображение, а не что-то другое');
@@ -63,11 +53,8 @@ export function ObjectControls(props: ObjectControlsProps) {
         reader.onload = (e) => {
             const dataUrl = e.target ? e.target.result : undefined;
             
-            if (dataUrl) {
-                dispatch(addImageToSlide, {
-                    slideId: props.currentSlideId,
-                    imageSrc: dataUrl
-                });
+            if (dataUrl && typeof dataUrl === 'string') {
+                dispatch(addImageToSlide(currentSlideId, dataUrl));
             }
             
             setIsLoading(false);
@@ -90,12 +77,9 @@ export function ObjectControls(props: ObjectControlsProps) {
     }
 
     function handleAddImageFromUrl(): void {
-        if (!props.currentSlideId || !imageUrl.trim()) return;
+        if (!currentSlideId || !imageUrl.trim()) return;
         
-        dispatch(addImageToSlide, {
-            slideId: props.currentSlideId,
-            imageSrc: imageUrl.trim()
-        });
+        dispatch(addImageToSlide(currentSlideId, imageUrl.trim()));
         
         setImageUrl('');
         setShowImageInput(false);

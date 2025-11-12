@@ -8,6 +8,10 @@ type DndArgs = {
 	onDrag?: (newX: number, newY: number) => void
 	onFinish?: (newX: number, newY: number) => void
 	axis?: Axis
+	isMultiple?: boolean
+	onMultipleDragStart?: () => void
+	onMultipleDrag?: (deltaX: number, deltaY: number) => void
+	onMultipleDragFinish?: () => void
 }
 
 type DndResult = {
@@ -23,18 +27,30 @@ export function useDnd({
 	onDrag, 
 	onFinish,
 	axis = 'both',
+	isMultiple = false,
+	onMultipleDragStart,
+	onMultipleDrag,
+	onMultipleDragFinish,
 }: DndArgs): DndResult {
 	const [isDragging, setIsDragging] = useState(false)
 	const [offsetX, setOffsetX] = useState(0)
 	const [offsetY, setOffsetY] = useState(0)
 	const [top, setTop] = useState(startY)
 	const [left, setLeft] = useState(startX)
+	const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 })
 
 	const onMouseDown = (event: React.MouseEvent) => {
 		event.preventDefault()
+		event.stopPropagation()
+		
 		setIsDragging(true)
 		setOffsetX(left - event.clientX)
 		setOffsetY(top - event.clientY)
+		setStartDragPosition({ x: event.clientX, y: event.clientY })
+		
+		if (isMultiple) {
+			onMultipleDragStart?.()
+		}
 	}
 
 	useEffect(() => {
@@ -53,12 +69,24 @@ export function useDnd({
 
 			setLeft(newLeft)
 			setTop(newTop)
-			onDrag?.(newLeft, newTop)
+			
+			if (isMultiple) {
+				const deltaX = event.clientX - startDragPosition.x
+				const deltaY = event.clientY - startDragPosition.y
+				onMultipleDrag?.(deltaX, deltaY)
+			} else {
+				onDrag?.(newLeft, newTop)
+			}
 		}
 
 		const handleMouseUp = () => {
 			setIsDragging(false)
-			onFinish?.(left, top)
+			
+			if (isMultiple) {
+				onMultipleDragFinish?.()
+			} else {
+				onFinish?.(left, top)
+			}
 		}
 
 		window.addEventListener('mousemove', handleMouseMove)
@@ -68,7 +96,7 @@ export function useDnd({
 			window.removeEventListener('mousemove', handleMouseMove)
 			window.removeEventListener('mouseup', handleMouseUp)
 		}
-	}, [isDragging, offsetX, offsetY, axis, left, top, onDrag, onFinish])
+	}, [isDragging, offsetX, offsetY, axis, left, top, onDrag, onFinish, isMultiple, onMultipleDrag, onMultipleDragFinish, startDragPosition])
 
 	return { isDragging, top, left, onMouseDown }
 }

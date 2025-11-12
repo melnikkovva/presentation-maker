@@ -1,71 +1,70 @@
-import React from 'react';
-import { useDnd } from '../../hooks/useDragAndDrop';
+import React, { useState } from 'react';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { selectSlide } from '../../store/actions/ActionCreators';
 import { SlideRender } from '../SlideRender/SlideRender';
-import type { Slide } from "../../store/types/types_of_presentation";
-import { SLIDE_HEIGHT, PREVIEW_SCALE } from '../../store/data/const_for_presantation';
-import styles from './DraggableSlideRender.module.css'
+import { useDnd } from '../../hooks/useDragAndDrop';
+import styles from './DraggableSlideRender.module.css';
+import { PREVIEW_SCALE, SLIDE_HEIGHT } from '../../store/data/const_for_presantation';
 
 interface DraggableSlideRenderProps {
-    slide: Slide;
+    slideId: string;
     index: number;
-    isActive: boolean;
-    onSlideClick: (slideId: string, index: number) => void;
-    onSlideReorder: (fromIndex: number, toIndex: number) => void;
-    isPreview?: boolean;
+    onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
-export function DraggableSlideRender(props: DraggableSlideRenderProps) {
-    const slideHeight = SLIDE_HEIGHT * PREVIEW_SCALE; 
-    const startY = props.index * slideHeight;
+export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSlideRenderProps) {
+    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
+    const slides = useAppSelector(state => state.presentation.slides.slides);
+    const dispatch = useAppDispatch();
 
-    const dnd = useDnd({
+    const isActive = slideId === currentSlideId;
+    const [dragStartIndex, setDragStartIndex] = useState<number | null>(null);
+
+    const drag = useDnd({
         startX: 0,
-        startY: startY,
+        startY: 0,
         axis: 'y', 
         onDrag: (newX, newY) => {
-            const newIndex = Math.max(0, Math.round(newY / slideHeight));            
-            if (newIndex !== props.index) {
-                props.onSlideReorder(props.index, newIndex);
-            }
         },
         onFinish: (newX, newY) => {
-            const finalIndex = Math.max(0, Math.round(newY / slideHeight));  
-            props.onSlideReorder(props.index, finalIndex);
+            if (dragStartIndex !== null) {
+                const deltaY = newY;
+                const slideHeight = SLIDE_HEIGHT * PREVIEW_SCALE; 
+                const newIndex = dragStartIndex + Math.round(deltaY / slideHeight);
+                
+                const clampedIndex = Math.max(0, Math.min(newIndex, slides.length - 1));
+                
+                if (clampedIndex !== dragStartIndex) {
+                    onReorder(dragStartIndex, clampedIndex);
+                }
+            }
+            setDragStartIndex(null);
         }
     });
 
-    const slideStyle: React.CSSProperties = {
-        zIndex: dnd.isDragging ? 1000 : 'auto',
-        position: 'relative',
-    };
+    function handleSlideClick(): void {
+        if (!drag.isDragging) {
+            dispatch(selectSlide(slideId));
+        }
+    }
+
+    function handleMouseDown(event: React.MouseEvent): void {
+        setDragStartIndex(index);
+        drag.onMouseDown(event);
+    }
 
     return (
-        <div
-            style={slideStyle}
-            className={
-                props.isActive 
-                    ? `${styles.slideItem} ${styles.activeSlide}`
-                    : styles.slideItem
-            }
+        <div 
+            className={`${styles.slideItem} ${isActive ? styles.active : ''} ${drag.isDragging ? styles.dragging : ''}`}
+            onClick={handleSlideClick}
+            onMouseDown={handleMouseDown}
         >
-            <div 
-                className={styles.slideContent}
-                onClick={() => props.onSlideClick(props.slide.id, props.index)}
-                onMouseDown={dnd.onMouseDown} 
-            >
-                <div className={styles.slideHeader}>
-                    <div className={styles.slideNumber}>Слайд {props.index + 1}</div>
-                </div>
-
-                <div className={styles.slidePreview}>
-                    <div className={styles.slidePreviewContent}>
-                        <SlideRender
-                            type={props.slide}
-                            isPreview={true} 
-                            className={styles.previewSlide}
-                        />
-                    </div>
-                </div>
+            <div className={styles.slideNumber}>{index + 1}</div>
+            <div className={styles.slidePreview}>
+                <SlideRender 
+                    slideId={slideId}
+                    isPreview={true}
+                />
             </div>
         </div>
     );

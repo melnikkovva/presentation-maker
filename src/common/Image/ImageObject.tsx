@@ -1,82 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { type ImageObject as ImageObjectType } from '../../store/types/types_of_presentation';
-import { resetObjectSelection, selectObject } from '../../store/functions/functions_of_presentation';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { selectObject, changeObjectPosition, changeObjectSize } from '../../store/actions/ActionCreators';
 import { PREVIEW_SCALE } from '../../store/data/const_for_presantation';
-import { dispatch } from '../../store/editor';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
+import type { ImageObject as ImageObjectType } from '../../store/types/types_of_presentation';
 import styles from './ImageObject.module.css';
 
 interface ImageObjectProps {
-    object: ImageObjectType;
+    objectId: string;
     isPreview: boolean;
-    isSelected: boolean;
-    currentSlideId?: string | null;
-    onImageClick?: (objectId: string) => void;
-    onObjectMove?: (objectId: string, newX: number, newY: number) => void;
-    onObjectResize?: (objectId: string, newWidth: number, newHeight: number, newX: number, newY: number) => void;
 }
 
-export function ImageObject(props: ImageObjectProps) {
-    const scale = props.isPreview ? PREVIEW_SCALE : 1;
-    const isInteractive = !props.isPreview;
+export function ImageObject({ objectId, isPreview }: ImageObjectProps) {
+    const object = useAppSelector(state => 
+        state.presentation.slides.slides.flatMap(slide => slide.slideObjects)
+            .find(obj => obj.id === objectId && obj.type === 'image') as ImageObjectType | undefined
+    );
+    const selectedObjectId = useAppSelector(state => state.presentation.selection?.objectId);
+    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
+    const dispatch = useAppDispatch();
+
+    const scale = isPreview ? PREVIEW_SCALE : 1;
+    const isInteractive = !isPreview;
+    const isSelected = objectId === selectedObjectId;
 
     const [position, setPosition] = useState({
-        x: props.object.x * scale,
-        y: props.object.y * scale
+        x: object?.x ? object.x * scale : 0,
+        y: object?.y ? object.y * scale : 0
     });
 
     useEffect(() => {
-        setPosition({
-            x: props.object.x * scale,
-            y: props.object.y * scale
-        });
-    }, [props.object.x, props.object.y, scale]);
+        if (object) {
+            setPosition({
+                x: object.x * scale,
+                y: object.y * scale
+            });
+        }
+    }, [object?.x, object?.y, scale]);
 
     const drag = useDnd({
         startX: position.x,
         startY: position.y,
         onDrag: (newX, newY) => {
             setPosition({ x: newX, y: newY });
-            if (props.onObjectMove) {
+            if (object && currentSlideId) {
                 const actualX = newX / scale;
                 const actualY = newY / scale;
-                props.onObjectMove(props.object.id, actualX, actualY);
+                dispatch(changeObjectPosition(currentSlideId, object.id, actualX, actualY));
             }
         },
         onFinish: (newX, newY) => {
-            if (props.onObjectMove) {
+            if (object && currentSlideId) {
                 const actualX = newX / scale;
                 const actualY = newY / scale;
-                props.onObjectMove(props.object.id, actualX, actualY);
+                dispatch(changeObjectPosition(currentSlideId, object.id, actualX, actualY));
             }
         }
     });
 
     const resize = useResize({
-        width: props.object.w * scale,
-        height: props.object.h * scale,
+        width: object?.w ? object.w * scale : 100,
+        height: object?.h ? object.h * scale : 100,
         x: position.x,
         y: position.y,
-        enabled: isInteractive && props.isSelected,
+        enabled: isInteractive && isSelected,
         onResize: (newWidth, newHeight, newX, newY) => {
             setPosition({ x: newX, y: newY });
-            if (props.onObjectResize) {
+            if (object && currentSlideId) {
                 const actualWidth = newWidth / scale;
                 const actualHeight = newHeight / scale;
                 const actualX = newX / scale;
                 const actualY = newY / scale;
-                props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
+                dispatch(changeObjectSize(currentSlideId, object.id, actualWidth, actualHeight, actualX, actualY));
             }
         },
         onResizeEnd: (newWidth, newHeight, newX, newY) => {
-            if (props.onObjectResize) {
+            if (object && currentSlideId) {
                 const actualWidth = newWidth / scale;
                 const actualHeight = newHeight / scale;
                 const actualX = newX / scale;
                 const actualY = newY / scale;
-                props.onObjectResize(props.object.id, actualWidth, actualHeight, actualX, actualY);
+                dispatch(changeObjectSize(currentSlideId, object.id, actualWidth, actualHeight, actualX, actualY));
             }
         },
         minWidth: 20,
@@ -84,26 +90,23 @@ export function ImageObject(props: ImageObjectProps) {
     });
 
     function handleClick(event: React.MouseEvent): void {
-        if (props.isPreview) return;
+        if (isPreview || !object) return;
         event.stopPropagation();
 
-        if (props.currentSlideId) {
-            if (props.isSelected) {
-                dispatch(resetObjectSelection);
-            } else {
-                dispatch(selectObject, {
-                    slideId: props.currentSlideId,
-                    objectId: props.object.id,
-                    typeElement: 'image'
-                });
-            }
+        if (isSelected) {
+            dispatch(selectObject(null));
+        } else {
+            dispatch(selectObject(object.id));
         }
-        props.onImageClick?.(props.object.id);
+    }
+
+    if (!object) {
+        return null;
     }
 
     const containerClass = [
         styles.container,
-        props.isSelected ? styles.containerSelected : ''
+        isSelected ? styles.containerSelected : ''
     ].join(' ');
 
     const imageClass = [
@@ -121,14 +124,15 @@ export function ImageObject(props: ImageObjectProps) {
     return (
         <div className={containerClass} style={containerStyle}>
             <img
-                src={props.object.src}
+                src={object.src}
                 className={imageClass}
                 onClick={handleClick}
                 onMouseDown={drag.onMouseDown}
             />
 
-            {props.isSelected && isInteractive && (
-            <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />)}
+            {isSelected && isInteractive && (
+                <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />
+            )}
         </div>
     );
 }

@@ -1,17 +1,15 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from './App';
-import { addPresentationChangeHandler, getPresentation } from './store/editor';
+import { App } from './views/App';
+import { Provider } from 'react-redux';
+import { store } from './store'; 
 
-const root = ReactDOM.createRoot(document.getElementById('root')!);
+const rootElement = document.getElementById('root');
 
-function render() {
-    root.render(
-        <React.StrictMode>
-            <App presentation={getPresentation()} />
-        </React.StrictMode>
-    );
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
 }
-
-addPresentationChangeHandler(render);
-render();

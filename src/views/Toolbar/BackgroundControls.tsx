@@ -1,16 +1,19 @@
+import { useState } from 'react';
 import styles from './Toolbar.module.css';
 import { Button } from '../../common/Button/Button';
 import changeBackground from '../../assets/icons/change.png';
 
-interface BackgroundControlsProps {
-    onOpenBackgroundMenu: () => void;
-}
+export function BackgroundControls() {
+    const [isBackgroundMenuOpen, setIsBackgroundMenuOpen] = useState(false);
 
-export function BackgroundControls(props: BackgroundControlsProps) {
+    function handleOpenBackgroundMenu(): void {
+        setIsBackgroundMenuOpen(true);
+    }
+
     return (
         <div className={styles.backgroundControls}>
             <Button 
-                onClick={props.onOpenBackgroundMenu}
+                onClick={handleOpenBackgroundMenu}
                 icon={changeBackground}
             />
         </div>

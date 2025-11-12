@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { dispatch } from '../../store/editor';
-import { createColorBackground, createImageBackground, changeSlideBackground } from '../../store/functions/functions_of_presentation';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { changeSlideBackground } from '../../store/actions/ActionCreators';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Background.module.css';
@@ -8,7 +8,6 @@ import styles from './Background.module.css';
 interface BackgroundMenuProps {
     isOpen: boolean;
     onClose: () => void;
-    currentSlideId: string | null;
 }
 
 export function BackgroundMenu(props: BackgroundMenuProps) {
@@ -16,37 +15,31 @@ export function BackgroundMenu(props: BackgroundMenuProps) {
     const [imageUrl, setImageUrl] = useState('');
     const [selectedTab, setSelectedTab] = useState<'color' | 'image'>('color');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
+    const dispatch = useAppDispatch();
 
     function handleColorChange(event: React.ChangeEvent<HTMLInputElement>) {
         const color = event.target.value;
         setCurrentColor(color);
             
-        if (props.currentSlideId) {
-            dispatch(changeSlideBackground, {
-                slideId: props.currentSlideId,
-                background: createColorBackground(color)
-            });
+        if (currentSlideId) {
+            dispatch(changeSlideBackground(currentSlideId, { type: 'color', color: color }));
         }
     }
 
     function handleUrlApply() {
-        if (imageUrl.trim() && props.currentSlideId) {
-            dispatch(changeSlideBackground, {
-                slideId: props.currentSlideId,
-                background: createImageBackground(imageUrl.trim())
-            });
+        if (imageUrl.trim() && currentSlideId) {
+            dispatch(changeSlideBackground(currentSlideId, { type: 'picture', src: imageUrl.trim() }));
             setImageUrl('');
         }
     }
 
     function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0];
-        if (file && props.currentSlideId) {
+        if (file && currentSlideId) {
             const imageUrl = URL.createObjectURL(file);
-            dispatch(changeSlideBackground, {
-                slideId: props.currentSlideId,
-                background: createImageBackground(imageUrl)
-            });
+            dispatch(changeSlideBackground(currentSlideId, { type: 'picture', src: imageUrl }));
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -107,7 +100,7 @@ export function BackgroundMenu(props: BackgroundMenuProps) {
                                 />
                                 <Button 
                                     onClick={handleUrlApply}
-                                    disabled={!imageUrl.trim() || !props.currentSlideId}
+                                    disabled={!imageUrl.trim() || !currentSlideId}
                                 >
                                     Применить
                                 </Button>
@@ -125,7 +118,7 @@ export function BackgroundMenu(props: BackgroundMenuProps) {
                                 />
                                 <Button 
                                     onClick={handleFileSelect}
-                                    disabled={!props.currentSlideId}
+                                    disabled={!currentSlideId}
                                 >
                                     Выбрать файл
                                 </Button>
