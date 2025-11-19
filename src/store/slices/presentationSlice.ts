@@ -19,11 +19,8 @@ export const presentationSlice = createSlice({
     renamePresentation: (state, action: PayloadAction<string>) => {
       state.title = action.payload;
     },
-    updatePresentation: (state, action: PayloadAction<Partial<Presentation>>) => {
-      return { ...state, ...action.payload };
-    },
   },
 });
 
-export const { renamePresentation, updatePresentation } = presentationSlice.actions;
+export const { renamePresentation } = presentationSlice.actions;
 export default presentationSlice.reducer;

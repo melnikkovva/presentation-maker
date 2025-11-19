@@ -1,10 +1,11 @@
 import { useAppSelector } from "../../store/hooks";
 import { TextObject } from "../../common/Text/TextObject";
 import { ImageObject } from  "../../common/Image/ImageObject";
+import { selectObjectsInCurrentSlide } from "../../store/selectors/presentationSelectors";
 import type { Slide } from "../../store/types/types_of_presentation";
 import styles from './SlideRender.module.css';
 
-interface SlideRenderProps {
+type SlideRenderProps = {
   slideId: string | null;
   isPreview?: boolean;
 }
@@ -13,6 +14,8 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
   const slide = useAppSelector(state => 
     state.slides.slides.find(s => s.id === slideId)
   );
+
+  const objects = useAppSelector(selectObjectsInCurrentSlide);
 
   if (!slide) {
     return null;
@@ -40,8 +43,8 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
 
   return (
     <div style={style}>
-      {slide.slideObjects.length > 0 
-        ? slide.slideObjects.map(object => {
+      {objects.length > 0 
+        ? objects.map(object => {
             if (object.type === 'text') {
               return (
                 <TextObject
@@ -50,7 +53,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
                   isPreview={isPreview}
                 />
               );
-            } else {
+            } else if (object.type === 'image') {
               return (
                 <ImageObject
                   key={object.id}
@@ -59,6 +62,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
                 />
               );
             }
+            return null;
           })                             
         : (
             <div className={styles.emptySlide}>

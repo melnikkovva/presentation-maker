@@ -3,7 +3,7 @@ import styles from './ResizeHandle.module.css';
 
 type ResizeHandleAxis = 's' | 'w' | 'e' | 'n' | 'sw' | 'nw' | 'se' | 'ne';
 
-interface ResizeHandlesSimpleProps {
+type ResizeHandlesSimpleProps = {
   onMouseDown: (axis: ResizeHandleAxis, event: React.MouseEvent) => void;
 }
 

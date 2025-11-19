@@ -7,7 +7,7 @@ import styles from './DraggableSlideRender.module.css';
 import { PREVIEW_SCALE, SLIDE_HEIGHT } from '../../store/data/const_for_presantation';
 import { selectCurrentSlideId, selectSlides } from '../../store/selectors/presentationSelectors';
 
-interface DraggableSlideRenderProps {
+type DraggableSlideRenderProps = {
     slideId: string;
     index: number;
     onReorder: (fromIndex: number, toIndex: number) => void;
@@ -79,4 +79,5 @@ export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSli
             </div>
         </div>
     );
+
 }

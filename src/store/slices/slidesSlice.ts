@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Slides, Slide, Background, SlideObject, TextObject, ImageObject } from '../types/types_of_presentation';
+import type { Slides, Slide, Background } from '../types/types_of_presentation';
 
 const initialState: Slides = {
   slides: [],
@@ -10,33 +10,6 @@ const initialState: Slides = {
 function generateId(): string {
   return crypto.randomUUID();
 }
-
-const createDefaultTextObjectWithId = (id: string, text?: string): TextObject => ({
-  type: 'text',
-  x: 100,
-  y: 100,
-  w: 200,
-  h: 50,
-  text: text?.trim() || 'Новый текст',
-  fontSize: 16,
-  fontFamily: 'Arial',
-  fontWeight: 'normal',
-  textDecoration: 'none',
-  textAlign: 'left',
-  color: '#000000',
-  shadow: null,
-  id: id,
-});
-
-const createDefaultImageObjectWithId = (id: string, src: string): ImageObject => ({
-  type: 'image',
-  x: 100,
-  y: 100,
-  w: 200,
-  h: 150,
-  src: src,
-  id: id,
-});
 
 export const slidesSlice = createSlice({
   name: 'slides',
@@ -78,77 +51,6 @@ export const slidesSlice = createSlice({
       const [movedSlide] = state.slides.splice(fromIndex, 1);
       state.slides.splice(toIndex, 0, movedSlide);
     },
-    
-    addObjectToSlide: (state, action: PayloadAction<{ slideId: string; object: SlideObject }>) => {
-      const { slideId, object } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        slide.slideObjects.push(object);
-      }
-    },
-    
-    removeObjectFromSlide: (state, action: PayloadAction<{ slideId: string; objectId: string }>) => {
-      const { slideId, objectId } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        slide.slideObjects = slide.slideObjects.filter(obj => obj.id !== objectId);
-      }
-    },
-    
-    updateObjectInSlide: (state, action: PayloadAction<{ slideId: string; objectId: string; updates: Partial<SlideObject> }>) => {
-      const { slideId, objectId, updates } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        const object = slide.slideObjects.find(obj => obj.id === objectId);
-        if (object) {
-          Object.assign(object, updates);
-        }
-      }
-    },
-    
-    addTextObject: (state, action: PayloadAction<{ slideId: string; text?: string }>) => {
-      const { slideId, text = 'Новый текст' } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        const textObject = createDefaultTextObjectWithId(generateId(), text);
-        slide.slideObjects.push(textObject);
-      }
-    },
-    
-    addImageObject: (state, action: PayloadAction<{ slideId: string; src: string }>) => {
-      const { slideId, src } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        const imageObject = createDefaultImageObjectWithId(generateId(), src);
-        slide.slideObjects.push(imageObject);
-      }
-    },
-    
-    changeObjectPosition: (state, action: PayloadAction<{ slideId: string; objectId: string; x: number; y: number }>) => {
-      const { slideId, objectId, x, y } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        const object = slide.slideObjects.find(obj => obj.id === objectId);
-        if (object) {
-          object.x = x;
-          object.y = y;
-        }
-      }
-    },
-    
-    changeObjectSize: (state, action: PayloadAction<{ slideId: string; objectId: string; width: number; height: number; x: number; y: number }>) => {
-      const { slideId, objectId, width, height, x, y } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        const object = slide.slideObjects.find(obj => obj.id === objectId);
-        if (object) {
-          object.w = width;
-          object.h = height;
-          object.x = x;
-          object.y = y;
-        }
-      }
-    },
   },
 });
 
@@ -158,12 +60,5 @@ export const {
   removeSlide, 
   changeSlideBackground, 
   reorderSlides,
-  addObjectToSlide,
-  removeObjectFromSlide,
-  updateObjectInSlide,
-  addTextObject,
-  addImageObject,
-  changeObjectPosition,
-  changeObjectSize
 } = slidesSlice.actions;
 export default slidesSlice.reducer;
