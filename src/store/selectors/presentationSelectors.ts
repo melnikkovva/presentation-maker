@@ -1,103 +1,64 @@
-import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 
 export const selectPresentation = (state: RootState) => state.presentation;
 export const selectSlidesState = (state: RootState) => state.slides;
 export const selectSelectionState = (state: RootState) => state.selection;
 
-export const selectTitle = createSelector(
-  [selectPresentation],
-  (presentation) => presentation.title
-);
+export const selectTitle = (state: RootState) => {
+  return state.presentation.title;
+};
 
-export const selectSlides = createSelector(
-  [selectSlidesState],
-  (slidesState) => slidesState.slides
-);
+export const selectSlides = (state: RootState) => {
+  return state.slides.slides;
+};
 
-export const selectCurrentSlideId = createSelector(
-  [selectSlidesState],
-  (slidesState) => slidesState.currentSlideId
-);
+export const selectCurrentSlideId = (state: RootState) => {
+  return state.slides.currentSlideId;
+};
 
-export const selectCurrentSlide = createSelector(
-  [selectSlides, selectCurrentSlideId],
-  (slides, currentSlideId) => slides.find(slide => slide.id === currentSlideId) || null
-);
+export const selectCurrentSlide = (state: RootState) => {
+  const slides = selectSlides(state);
+  const currentSlideId = selectCurrentSlideId(state);
+  return slides.find(slide => slide.id === currentSlideId);
+};
 
-export const selectSelection = createSelector(
-  [selectSelectionState],
-  (selection) => selection
-);
+export const selectSelection = (state: RootState) => {
+  return state.selection;
+};
 
-export const selectSelectedObjectId = createSelector(
-  [selectSelection],
-  (selection) => selection?.objectId || null
-);
+export const selectSelectedObjectId = (state: RootState) => {
+  return state.selection?.objectId || null
+}
 
-export const selectSelectedSlideId = createSelector(
-  [selectSelection],
-  (selection) => selection?.slideId || null
-);
+export const selectSelectedSlideId = (state: RootState) => {
+  return state.selection?.slideId || null
+}
 
-export const selectSelectedTypeElement = createSelector(
-  [selectSelection],
-  (selection) => selection?.typeElement || null
-);
+export const selectSelectedTypeElement = (state: RootState) => {
+  return state.selection?.typeElement || null
+}
 
-export const makeSelectObjectById = (objectId: string) => 
-  createSelector(
-    [selectSlides],
-    (slides) => {
-      for (const slide of slides) {
-        const object = slide.slideObjects.find(obj => obj.id === objectId);
-        if (object) return object;
-      }
-      return null;
-    }
-  );
+export const selectObjectsInCurrentSlide = (state: RootState) => {
+  const currentSlide = selectCurrentSlide(state);
+  return currentSlide?.slideObjects || [];
+};
 
-export const makeSelectTextObjectById = (objectId: string) => 
-  createSelector(
-    [makeSelectObjectById(objectId)],
-    (object) => object?.type === 'text' ? object : null
-  );
+export const selectSelectedObjectInCurrentSlide = (state: RootState) => {
+  const currentSlide = selectCurrentSlide(state);
+  const selectedObjectId = selectSelectedObjectId(state);
+  return currentSlide?.slideObjects.find(obj => obj.id === selectedObjectId) || null;
+};
 
-export const makeSelectImageObjectById = (objectId: string) => 
-  createSelector(
-    [makeSelectObjectById(objectId)],
-    (object) => object?.type === 'image' ? object : null
-  );
+export const selectIsObjectSelected = (objectId: string) => (state: RootState) => {
+  const selectedObjectId = selectSelectedObjectId(state);
+  return selectedObjectId === objectId;
+};
 
-export const selectObjectsInCurrentSlide = createSelector(
-  [selectCurrentSlide],
-  (currentSlide) => currentSlide?.slideObjects || []
-);
+export const selectIsSlideSelected = (slideId: string) => (state: RootState) => {
+  const currentSlideId = selectCurrentSlideId(state);
+  return currentSlideId === slideId;
+};
 
-export const selectSelectedObjectInCurrentSlide = createSelector(
-  [selectCurrentSlide, selectSelectedObjectId],
-  (currentSlide, selectedObjectId) => 
-    currentSlide?.slideObjects.find(obj => obj.id === selectedObjectId) || null
-);
-
-export const selectIsObjectSelected = (objectId: string) => 
-  createSelector(
-    [selectSelectedObjectId],
-    (selectedObjectId) => selectedObjectId === objectId
-  );
-
-export const selectIsSlideSelected = (slideId: string) => 
-  createSelector(
-    [selectCurrentSlideId],
-    (currentSlideId) => currentSlideId === slideId
-  );
-
-export const selectSlidesCount = createSelector(
-  [selectSlides],
-  (slides) => slides.length
-);
-
-export const selectObjectsCountInCurrentSlide = createSelector(
-  [selectObjectsInCurrentSlide],
-  (objects) => objects.length
-);
+export const selectSlidesCount = (state: RootState) => {
+  return state.slides.slides.length
+} 

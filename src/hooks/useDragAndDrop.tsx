@@ -8,10 +8,7 @@ type DndArgs = {
   onDrag?: (newX: number, newY: number) => void;
   onFinish?: (newX: number, newY: number) => void;
   axis?: Axis;
-  isMultiple?: boolean;
-  onMultipleDragStart?: () => void;
-  onMultipleDrag?: (deltaX: number, deltaY: number) => void;
-  onMultipleDragFinish?: () => void;
+
 };
 
 type DndResult = {
@@ -27,10 +24,7 @@ export function useDnd({
   onDrag,
   onFinish,
   axis = 'both',
-  isMultiple = false,
-  onMultipleDragStart,
-  onMultipleDrag,
-  onMultipleDragFinish,
+
 }: DndArgs): DndResult {
   const [isDragging, setIsDragging] = useState(false);
   const [offsetX, setOffsetX] = useState(0);
@@ -47,7 +41,6 @@ export function useDnd({
     setOffsetY(top - event.clientY);
     setStartDragPosition({ x: event.clientX, y: event.clientY });
 
-    if (isMultiple) onMultipleDragStart?.();
   };
 
   useEffect(() => {
@@ -63,19 +56,12 @@ export function useDnd({
       setLeft(newLeft);
       setTop(newTop);
 
-      if (isMultiple) {
-        const deltaX = event.clientX - startDragPosition.x;
-        const deltaY = event.clientY - startDragPosition.y;
-        onMultipleDrag?.(deltaX, deltaY);
-      } else {
-        onDrag?.(newLeft, newTop);
-      }
+      onDrag?.(newLeft, newTop);
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      if (isMultiple) onMultipleDragFinish?.();
-      else onFinish?.(left, top);
+      onFinish?.(left, top);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -94,9 +80,6 @@ export function useDnd({
     top,
     onDrag,
     onFinish,
-    isMultiple,
-    onMultipleDrag,
-    onMultipleDragFinish,
     startDragPosition,
   ]);
 

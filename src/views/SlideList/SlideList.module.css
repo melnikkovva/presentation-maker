@@ -3,11 +3,12 @@
   flex-direction: column;
   width: 300px;
   min-width: 300px;
-  height: calc(100vh - 120px); /* ✔ фиксируем высоту */
+  height: calc(100vh - 240px);
   background: #111;
   border: 1px solid #333;
   border-radius: 10px;
-  overflow: hidden; /* важно */
+  overflow: hidden; 
+  padding-bottom: 20px;
 }
 
 .slideListHeader {
@@ -30,7 +31,7 @@
   flex-direction: column;
   gap: 14px;
 
-  overflow-y: auto;         /* ✔ прокрутка */
+  overflow-y: auto;        
   overflow-x: hidden;
   scrollbar-width: thin;
 }
@@ -48,12 +49,11 @@
   background: #555;
 }
 
-/* Для мобильных */
 @media (max-width: 768px) {
   .slideListContainer {
     width: 100%;
     min-width: auto;
-    height: 200px; /* компактная версия */
+    height: 200px; 
   }
 
   .slideList {

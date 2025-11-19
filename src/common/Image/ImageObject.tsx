@@ -2,8 +2,8 @@ import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { selectObject } from '../../store/slices/selectionSlice';
 import { changeObjectPosition, changeObjectSize } from '../../store/slices/slidesSlice';
-import { makeSelectImageObjectById, selectSelectedObjectId, selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
-import { PREVIEW_SCALE } from '../../store/data/const_for_presantation';
+import { selectSlides, selectSelectedObjectId, selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
+import { PREVIEW_SCALE, MIN_DIV_HEIGHT, MIN_DIV_WIDTH } from '../../store/data/const_for_presantation';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
@@ -15,10 +15,20 @@ interface ImageObjectProps {
 }
 
 export function ImageObject({ objectId, isPreview }: ImageObjectProps) {
-  const object = useAppSelector(makeSelectImageObjectById(objectId));
+  const slides = useAppSelector(selectSlides);
   const selectedObjectId = useAppSelector(selectSelectedObjectId);
   const currentSlideId = useAppSelector(selectCurrentSlideId);
   const dispatch = useAppDispatch();
+
+  const object = React.useMemo(() => {
+    for (const slide of slides) {
+      const foundObject = slide.slideObjects.find(obj => obj.id === objectId);
+      if (foundObject && foundObject.type === 'image') {
+        return foundObject;
+      }
+    }
+    return null;
+  }, [slides, objectId]);
 
   const scale = isPreview ? PREVIEW_SCALE : 1;
   const isInteractive = !isPreview;
@@ -91,8 +101,8 @@ export function ImageObject({ objectId, isPreview }: ImageObjectProps) {
         }));
       }
     },
-    minWidth: 20,
-    minHeight: 20
+    minWidth: MIN_DIV_WIDTH,
+    minHeight: MIN_DIV_HEIGHT
   });
 
   function handleClick(): void {

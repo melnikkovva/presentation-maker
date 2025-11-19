@@ -11,13 +11,13 @@ function generateId(): string {
   return crypto.randomUUID();
 }
 
-const createDefaultTextObject = (): Omit<TextObject, 'id'> => ({
+const createDefaultTextObjectWithId = (id: string, text?: string): TextObject => ({
   type: 'text',
   x: 100,
   y: 100,
   w: 200,
   h: 50,
-  text: 'Новый текст',
+  text: text?.trim() || 'Новый текст',
   fontSize: 16,
   fontFamily: 'Arial',
   fontWeight: 'normal',
@@ -25,15 +25,17 @@ const createDefaultTextObject = (): Omit<TextObject, 'id'> => ({
   textAlign: 'left',
   color: '#000000',
   shadow: null,
+  id: id,
 });
 
-const createDefaultImageObject = (src: string): Omit<ImageObject, 'id'> => ({
+const createDefaultImageObjectWithId = (id: string, src: string): ImageObject => ({
   type: 'image',
   x: 100,
   y: 100,
   w: 200,
   h: 150,
-  src,
+  src: src,
+  id: id,
 });
 
 export const slidesSlice = createSlice({
@@ -108,11 +110,7 @@ export const slidesSlice = createSlice({
       const { slideId, text = 'Новый текст' } = action.payload;
       const slide = state.slides.find(slide => slide.id === slideId);
       if (slide) {
-        const textObject: TextObject = {
-          ...createDefaultTextObject(),
-          id: generateId(),
-          text: text.trim() || 'Новый текст', 
-        };
+        const textObject = createDefaultTextObjectWithId(generateId(), text);
         slide.slideObjects.push(textObject);
       }
     },
@@ -121,10 +119,7 @@ export const slidesSlice = createSlice({
       const { slideId, src } = action.payload;
       const slide = state.slides.find(slide => slide.id === slideId);
       if (slide) {
-        const imageObject: ImageObject = {
-          ...createDefaultImageObject(src),
-          id: generateId(),
-        };
+        const imageObject = createDefaultImageObjectWithId(generateId(), src);
         slide.slideObjects.push(imageObject);
       }
     },
