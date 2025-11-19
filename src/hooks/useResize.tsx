@@ -141,7 +141,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
         if (!enabled) return
         
         event.preventDefault()
-        event.stopPropagation()
 
         setResizeState({
             axis,

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { selectSlide } from '../../store/actions/ActionCreators';
+import { selectSlide } from '../../store/slices/slidesSlice'; 
 import { SlideRender } from '../SlideRender/SlideRender';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import styles from './DraggableSlideRender.module.css';
 import { PREVIEW_SCALE, SLIDE_HEIGHT } from '../../store/data/const_for_presantation';
+import { selectCurrentSlideId, selectSlides } from '../../store/selectors/presentationSelectors';
 
 interface DraggableSlideRenderProps {
     slideId: string;
@@ -13,8 +14,8 @@ interface DraggableSlideRenderProps {
 }
 
 export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSlideRenderProps) {
-    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
-    const slides = useAppSelector(state => state.presentation.slides.slides);
+    const currentSlideId = useAppSelector(selectCurrentSlideId);
+    const slides = useAppSelector(selectSlides);
     const dispatch = useAppDispatch();
 
     const isActive = slideId === currentSlideId;
@@ -25,6 +26,16 @@ export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSli
         startY: 0,
         axis: 'y', 
         onDrag: (newX, newY) => {
+            if (dragStartIndex !== null) {
+                const deltaY = newY;
+                const slideHeight = SLIDE_HEIGHT * PREVIEW_SCALE; 
+                const newIndex = dragStartIndex + Math.round(deltaY / slideHeight);
+                
+                const clampedIndex = Math.max(0, Math.min(newIndex, slides.length - 1));
+                
+                if (clampedIndex !== dragStartIndex) {
+                }
+            }
         },
         onFinish: (newX, newY) => {
             if (dragStartIndex !== null) {
@@ -44,7 +55,7 @@ export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSli
 
     function handleSlideClick(): void {
         if (!drag.isDragging) {
-            dispatch(selectSlide(slideId));
+            dispatch(selectSlide(slideId));         
         }
     }
 

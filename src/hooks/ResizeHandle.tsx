@@ -32,7 +32,6 @@ export function ResizeHandles({ onMouseDown }: ResizeHandlesSimpleProps) {
           className={styles.resizeHandle}
           style={getHandleStyle(axis)}
           onMouseDown={(e) => {
-            e.stopPropagation();
             onMouseDown(axis, e);
           }}
         />

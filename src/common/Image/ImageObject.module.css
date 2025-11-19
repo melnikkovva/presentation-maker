@@ -1,24 +1,21 @@
 .container {
-    position: absolute;
-    box-sizing: border-box;
+  position: absolute;
 }
 
 .containerSelected {
-    border: 3px solid #eeb4eb;
+  border: 2px solid #666;
 }
 
 .image {
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    user-select: none;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
 }
 
-.cursorPointer {
-    cursor: pointer;
-}
-
-.cursorGrabbing {
-    cursor: grabbing;
-}
+.cursorPointer { 
+  cursor: pointer;
+ }
+.cursorGrabbing { 
+  cursor: grabbing;
+ }

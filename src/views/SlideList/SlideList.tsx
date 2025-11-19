@@ -1,14 +1,15 @@
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { reorderSlides } from '../../store/actions/ActionCreators';
+import { reorderSlides } from '../../store/slices/slidesSlice';
 import styles from './SlideList.module.css';
 import { DraggableSlideRender } from '../SlideRender/DraggableSlideRender';
+import { selectSlides } from '../../store/selectors/presentationSelectors';
 
 export function SlideList() {
-    const slides = useAppSelector(state => state.presentation.slides.slides);
+    const slides = useAppSelector(selectSlides);
     const dispatch = useAppDispatch();
 
     function handleSlideReorder(fromIndex: number, toIndex: number): void {
-        dispatch(reorderSlides(fromIndex, toIndex));
+        dispatch(reorderSlides({ fromIndex, toIndex }));
     }
 
     return (

@@ -1,10 +1,11 @@
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { renamePresentation } from '../../store/actions/ActionCreators';
+import { renamePresentation } from '../../store/slices/presentationSlice';
 import { Input } from '../../common/Input/Input';
 import styles from './PresentationTitle.module.css';
+import { selectTitle } from '../../store/selectors/presentationSelectors';
 
 export function PresentationTitle() {
-    const title = useAppSelector(state => state.presentation.title);
+    const title = useAppSelector(selectTitle);
     const dispatch = useAppDispatch();
 
     return (

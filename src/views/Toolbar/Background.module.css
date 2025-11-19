@@ -1,0 +1,19 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu {
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  color: #eee;
+}
+
+.header h3 {
+  margin: 0;
+}

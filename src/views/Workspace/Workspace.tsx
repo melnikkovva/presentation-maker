@@ -2,12 +2,11 @@ import { useAppSelector } from '../../store/hooks';
 import { SlideRender } from '../SlideRender/SlideRender';
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from '../../store/data/const_for_presantation';
 import styles from './Workspace.module.css';
+import { selectCurrentSlide, selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
 
 export function Workspace() {
-    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
-    const currentSlide = useAppSelector(state => 
-        state.presentation.slides.slides.find(slide => slide.id === currentSlideId)
-    );
+    const currentSlideId = useAppSelector(selectCurrentSlideId);
+    const currentSlide = useAppSelector(selectCurrentSlide);
 
     if (!currentSlide) {
         return (

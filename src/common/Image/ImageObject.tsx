@@ -1,138 +1,150 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { selectObject, changeObjectPosition, changeObjectSize } from '../../store/actions/ActionCreators';
+import { selectObject } from '../../store/slices/selectionSlice';
+import { changeObjectPosition, changeObjectSize } from '../../store/slices/slidesSlice';
+import { makeSelectImageObjectById, selectSelectedObjectId, selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
 import { PREVIEW_SCALE } from '../../store/data/const_for_presantation';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
-import type { ImageObject as ImageObjectType } from '../../store/types/types_of_presentation';
 import styles from './ImageObject.module.css';
 
 interface ImageObjectProps {
-    objectId: string;
-    isPreview: boolean;
+  objectId: string;
+  isPreview: boolean;
 }
 
 export function ImageObject({ objectId, isPreview }: ImageObjectProps) {
-    const object = useAppSelector(state => 
-        state.presentation.slides.slides.flatMap(slide => slide.slideObjects)
-            .find(obj => obj.id === objectId && obj.type === 'image') as ImageObjectType | undefined
-    );
-    const selectedObjectId = useAppSelector(state => state.presentation.selection?.objectId);
-    const currentSlideId = useAppSelector(state => state.presentation.slides.currentSlideId);
-    const dispatch = useAppDispatch();
+  const object = useAppSelector(makeSelectImageObjectById(objectId));
+  const selectedObjectId = useAppSelector(selectSelectedObjectId);
+  const currentSlideId = useAppSelector(selectCurrentSlideId);
+  const dispatch = useAppDispatch();
 
-    const scale = isPreview ? PREVIEW_SCALE : 1;
-    const isInteractive = !isPreview;
-    const isSelected = objectId === selectedObjectId;
+  const scale = isPreview ? PREVIEW_SCALE : 1;
+  const isInteractive = !isPreview;
+  const isSelected = objectId === selectedObjectId;
 
-    const [position, setPosition] = useState({
-        x: object?.x ? object.x * scale : 0,
-        y: object?.y ? object.y * scale : 0
-    });
-
-    useEffect(() => {
-        if (object) {
-            setPosition({
-                x: object.x * scale,
-                y: object.y * scale
-            });
-        }
-    }, [object?.x, object?.y, scale]);
-
-    const drag = useDnd({
-        startX: position.x,
-        startY: position.y,
-        onDrag: (newX, newY) => {
-            setPosition({ x: newX, y: newY });
-            if (object && currentSlideId) {
-                const actualX = newX / scale;
-                const actualY = newY / scale;
-                dispatch(changeObjectPosition(currentSlideId, object.id, actualX, actualY));
-            }
-        },
-        onFinish: (newX, newY) => {
-            if (object && currentSlideId) {
-                const actualX = newX / scale;
-                const actualY = newY / scale;
-                dispatch(changeObjectPosition(currentSlideId, object.id, actualX, actualY));
-            }
-        }
-    });
-
-    const resize = useResize({
-        width: object?.w ? object.w * scale : 100,
-        height: object?.h ? object.h * scale : 100,
-        x: position.x,
-        y: position.y,
-        enabled: isInteractive && isSelected,
-        onResize: (newWidth, newHeight, newX, newY) => {
-            setPosition({ x: newX, y: newY });
-            if (object && currentSlideId) {
-                const actualWidth = newWidth / scale;
-                const actualHeight = newHeight / scale;
-                const actualX = newX / scale;
-                const actualY = newY / scale;
-                dispatch(changeObjectSize(currentSlideId, object.id, actualWidth, actualHeight, actualX, actualY));
-            }
-        },
-        onResizeEnd: (newWidth, newHeight, newX, newY) => {
-            if (object && currentSlideId) {
-                const actualWidth = newWidth / scale;
-                const actualHeight = newHeight / scale;
-                const actualX = newX / scale;
-                const actualY = newY / scale;
-                dispatch(changeObjectSize(currentSlideId, object.id, actualWidth, actualHeight, actualX, actualY));
-            }
-        },
-        minWidth: 20,
-        minHeight: 20
-    });
-
-    function handleClick(event: React.MouseEvent): void {
-        if (isPreview || !object) return;
-        event.stopPropagation();
-
-        if (isSelected) {
-            dispatch(selectObject(null));
-        } else {
-            dispatch(selectObject(object.id));
-        }
+  const drag = useDnd({
+    startX: object?.x ? object.x * scale : 0,
+    startY: object?.y ? object.y * scale : 0,
+    onDrag: (newX, newY) => {
+      if (object && currentSlideId) {
+        const actualX = newX / scale;
+        const actualY = newY / scale;
+        dispatch(changeObjectPosition({ 
+          slideId: currentSlideId, 
+          objectId: object.id, 
+          x: actualX, 
+          y: actualY 
+        }));
+      }
+    },
+    onFinish: (newX, newY) => {
+      if (object && currentSlideId) {
+        const actualX = newX / scale;
+        const actualY = newY / scale;
+        dispatch(changeObjectPosition({ 
+          slideId: currentSlideId, 
+          objectId: object.id, 
+          x: actualX, 
+          y: actualY 
+        }));
+      }
     }
+  });
 
-    if (!object) {
-        return null;
+  const resize = useResize({
+    width: object?.w ? object.w * scale : 100,
+    height: object?.h ? object.h * scale : 100,
+    x: object?.x ? object.x * scale : 0,
+    y: object?.y ? object.y * scale : 0,
+    enabled: isInteractive && isSelected,
+    onResize: (newWidth, newHeight, newX, newY) => {
+      if (object && currentSlideId) {
+        const actualWidth = newWidth / scale;
+        const actualHeight = newHeight / scale;
+        const actualX = newX / scale;
+        const actualY = newY / scale;
+        dispatch(changeObjectSize({ 
+          slideId: currentSlideId, 
+          objectId: object.id, 
+          width: actualWidth, 
+          height: actualHeight, 
+          x: actualX, 
+          y: actualY 
+        }));
+      }
+    },
+    onResizeEnd: (newWidth, newHeight, newX, newY) => {
+      if (object && currentSlideId) {
+        const actualWidth = newWidth / scale;
+        const actualHeight = newHeight / scale;
+        const actualX = newX / scale;
+        const actualY = newY / scale;
+        dispatch(changeObjectSize({ 
+          slideId: currentSlideId, 
+          objectId: object.id, 
+          width: actualWidth, 
+          height: actualHeight, 
+          x: actualX, 
+          y: actualY 
+        }));
+      }
+    },
+    minWidth: 20,
+    minHeight: 20
+  });
+
+  function handleClick(): void {
+    if (isPreview || !object || !currentSlideId) return;
+
+    if (isSelected) {
+      dispatch(selectObject(null));
+    } else {
+      dispatch(selectObject({ 
+        slideId: currentSlideId, 
+        objectId: object.id, 
+        typeElement: 'image' 
+      }));
     }
+  }
 
-    const containerClass = [
-        styles.container,
-        isSelected ? styles.containerSelected : ''
-    ].join(' ');
+  if (!object) {
+    return null;
+  }
 
-    const imageClass = [
-        styles.image,
-        drag.isDragging ? styles.cursorGrabbing : styles.cursorPointer
-    ].join(' ');
+  const containerClass = [
+    styles.container,
+    isSelected ? styles.containerSelected : ''
+  ].join(' ');
 
-    const containerStyle: React.CSSProperties = {
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: `${resize.width}px`,
-        height: `${resize.height}px`,
-    };
+  const imageClass = [
+    styles.image,
+    drag.isDragging ? styles.cursorGrabbing : styles.cursorPointer
+  ].join(' ');
 
-    return (
-        <div className={containerClass} style={containerStyle}>
-            <img
-                src={object.src}
-                className={imageClass}
-                onClick={handleClick}
-                onMouseDown={drag.onMouseDown}
-            />
+  const containerStyle: React.CSSProperties = {
+    left: `${object.x * scale}px`,
+    top: `${object.y * scale}px`,
+    width: `${object.w * scale}px`,
+    height: `${object.h * scale}px`,
+    position: 'absolute',
+  };
 
-            {isSelected && isInteractive && (
-                <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />
-            )}
-        </div>
-    );
+  return (
+    <div className={containerClass} style={containerStyle}>
+      <img
+        src={object.src}
+        className={imageClass}
+        onClick={handleClick}
+        onMouseDown={drag.isDragging ? undefined : drag.onMouseDown}
+        draggable={false}
+        alt=""
+      />
+
+      {isSelected && isInteractive && (
+        <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />
+      )}
+    </div>
+  );
 }

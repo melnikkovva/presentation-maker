@@ -1,46 +1,36 @@
 .button {
-    position: relative;
-    padding: 9px 8px 5px 8px;
-    margin: 5px;
-    border: none; 
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: "Geologica", sans-serif;
-    color: rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    transition: all 0.25s ease;
+  padding: 10px 14px;
+  margin: 6px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  background: #222;
+  color: #eee;
+  font-size: 15px;
 }
 
 .button:hover {
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  background: #333;
 }
 
 .button:active {
-    transform: translateY(1px);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+  background: #111;
 }
 
 .iconButton {
-    min-width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
+  min-width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon {
-    width: 32px;
-    height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
+  opacity: 0.4;
+  cursor: not-allowed;
 }

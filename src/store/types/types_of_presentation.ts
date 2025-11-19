@@ -1,39 +1,39 @@
 export type Presentation = {
-    id: string;
-    title: string;
-    slides: Slides;
-    selection: Selection | null;
+  id: string;
+  title: string;
+  slides: Slides;
+  selection: Selection | null;
 }
 
 export type Slide = {
-    id: string;
-    slideObjects: Array<SlideObject>;
-    background: Background;
+  id: string;
+  slideObjects: Array<SlideObject>;
+  background: Background;
 }
 
-export type SlideObject = TextObject | ImageObject
+export type SlideObject = TextObject | ImageObject;
 
-export type Background = Color | Picture
+export type Background = Color | Picture;
 
 export type Color = {
-    type: 'color';
-    color: string
+  type: 'color';
+  color: string;
 }
 
 export type Picture = {
-    type: 'picture';
-    src: string;
+  type: 'picture';
+  src: string;
 }
 
 export type Slides = {
-    slides: Slide[];
-    currentSlideId: string | null;
+  slides: Slide[];
+  currentSlideId: string | null;
 }
 
 export type Selection = {
-    slideId: string;
-    objectId: string;
-    typeElement: 'text' | 'image' |'none';
+  slideId: string;
+  objectId: string;
+  typeElement: 'text' | 'image' | 'none';
 }
 
 export type TextDecoration = 'underline' | 'line-through' | 'none';
@@ -53,22 +53,22 @@ export type TextObject = BaseSlideObject & {
   fontFamily: string;
   fontWeight: string;
   textDecoration: string;
-  textAlign: 'left' | 'center' | 'right' | 'justify';
+  textAlign: TextAlign;
   color: string;
   shadow: TextShadow | null;
 }
 
 export type ImageObject = BaseSlideObject & {
-    type: 'image';
-    src: string;
+  type: 'image';
+  src: string;
 }
 
 type BaseSlideObject = {
-    id: string;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 export type ModalType = 'imageUrl' | 'backgroundUrl' | 'color' | null;

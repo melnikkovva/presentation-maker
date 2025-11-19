@@ -2,26 +2,19 @@
   display: flex;
   flex-direction: column;
   width: 300px;
-  min-width: 300px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #111;
+  border: 1px solid #333;
 }
 
 .slideListHeader {
   padding: 16px;
-  background: rgba(255, 255, 255, 0.15);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #222;
   text-align: center;
 }
 
 .slideListTitle {
   font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  color: #eee;
 }
 
 .slideList {
@@ -30,49 +23,29 @@
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  max-height: calc(100vh - 200px);
   overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
 }
 
 .slideList::-webkit-scrollbar {
   width: 6px;
 }
 
-.slideList::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-
 .slideList::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 3px;
+  background: #444;
 }
 
-.slideList::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-@media (max-width: 1024px) {
-  .slideListContainer {
-    width: 260px;
-    min-width: 260px;
-  }
-}
-
-@media (max-width: 768px) {
-  .slideListContainer {
-    width: 100%;
-    min-width: auto;
-    max-height: 200px;
-  }
-
-  .slideList {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: 12px;
-    padding: 12px;
-  }
+.multipleSelectionBadge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #007acc;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 10;
 }
