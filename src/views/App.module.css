@@ -2,6 +2,8 @@ body {
   background: #0d0d0d;
   color: #eee;
   font-family: sans-serif;
+  overflow: hidden;
+
 }
 
 .app {
@@ -9,6 +11,7 @@ body {
   flex-direction: column;
   height: 100vh;
   background: #0d0d0d;
+  overflow: hidden;
 }
 
 .mainContainer {
