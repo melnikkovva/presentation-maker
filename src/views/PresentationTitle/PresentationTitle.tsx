@@ -1,5 +1,5 @@
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { renamePresentation } from '../../store/slices/presentationSlice';
+import { renamePresentation } from '../../store/slices/titleSlice';
 import { Input } from '../../common/Input/Input';
 import styles from './PresentationTitle.module.css';
 import { selectTitle } from '../../store/selectors/presentationSelectors';

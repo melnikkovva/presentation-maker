@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { selectSlide } from '../../store/slices/slidesSlice'; 
+import { selectSlide } from '../../store/slices/selectionSlice'; 
 import { SlideRender } from '../SlideRender/SlideRender';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import styles from './DraggableSlideRender.module.css';
 import { PREVIEW_SCALE, SLIDE_HEIGHT } from '../../store/data/const_for_presantation';
 import { selectCurrentSlideId, selectSlides } from '../../store/selectors/presentationSelectors';
 
-interface DraggableSlideRenderProps {
+type DraggableSlideRenderProps = {
     slideId: string;
     index: number;
     onReorder: (fromIndex: number, toIndex: number) => void;
@@ -34,6 +34,7 @@ export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSli
                 const clampedIndex = Math.max(0, Math.min(newIndex, slides.length - 1));
                 
                 if (clampedIndex !== dragStartIndex) {
+                   
                 }
             }
         },

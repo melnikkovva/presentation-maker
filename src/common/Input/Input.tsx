@@ -1,6 +1,6 @@
 import styles from './Input.module.css';
 
-interface InputProps {
+type InputProps = {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;

@@ -1,6 +1,6 @@
 import styles from './Button.module.css';
 
-interface ButtonProps {
+type ButtonProps = {
     children?: string;
     disabled?: boolean;
     dropdown?: boolean;

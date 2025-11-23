@@ -1,34 +1,23 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { selectObject } from '../../store/slices/selectionSlice';
-import { changeObjectPosition, changeObjectSize } from '../../store/slices/slidesSlice';
-import { selectSlides, selectSelectedObjectId, selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
+import { changeObjectPosition, changeObjectSize } from '../../store/slices/objectsSlice';
+import { selectTextObjectById, selectSelectedObjectId } from '../../store/selectors/presentationSelectors';
 import { DEFAULT_PADDING_TEXT_FIELD, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PREVIEW_SCALE } from '../../store/data/const_for_presantation';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
 import styles from './TextObject.module.css';
 
-interface TextObjectProps {
+type TextObjectProps = {
   objectId: string;
   isPreview: boolean;
 }
 
 export function TextObject({ objectId, isPreview }: TextObjectProps) {
-  const slides = useAppSelector(selectSlides);
+  const object = useAppSelector(selectTextObjectById(objectId));
   const selectedObjectId = useAppSelector(selectSelectedObjectId);
-  const currentSlideId = useAppSelector(selectCurrentSlideId);
   const dispatch = useAppDispatch();
-
-  const object = React.useMemo(() => {
-    for (const slide of slides) {
-      const foundObject = slide.slideObjects.find(obj => obj.id === objectId);
-      if (foundObject && foundObject.type === 'text') {
-        return foundObject;
-      }
-    }
-    return null;
-  }, [slides, objectId]);
 
   const scale = isPreview ? PREVIEW_SCALE : 1;
   const isInteractive = !isPreview;
@@ -38,11 +27,10 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
     startX: object?.x ? object.x * scale : 0,
     startY: object?.y ? object.y * scale : 0,
     onDrag: (newX, newY) => {
-      if (object && currentSlideId) {
+      if (object) {
         const actualX = newX / scale;
         const actualY = newY / scale;
         dispatch(changeObjectPosition({ 
-          slideId: currentSlideId, 
           objectId: object.id, 
           x: actualX, 
           y: actualY 
@@ -50,11 +38,10 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
       }
     },
     onFinish: (newX, newY) => {
-      if (object && currentSlideId) {
+      if (object) {
         const actualX = newX / scale;
         const actualY = newY / scale;
         dispatch(changeObjectPosition({ 
-          slideId: currentSlideId, 
           objectId: object.id, 
           x: actualX, 
           y: actualY 
@@ -70,35 +57,43 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
     y: object?.y ? object.y * scale : 0,
     enabled: isInteractive && isSelected,
     onResize: (newWidth, newHeight, newX, newY) => {
-      if (object && currentSlideId) {
+      if (object) {
         const actualWidth = newWidth / scale;
         const actualHeight = newHeight / scale;
         const actualX = newX / scale;
         const actualY = newY / scale;
         dispatch(changeObjectSize({ 
-          slideId: currentSlideId, 
           objectId: object.id, 
           width: actualWidth, 
-          height: actualHeight, 
-          x: actualX, 
-          y: actualY 
+          height: actualHeight 
         }));
+        if (newX !== object.x * scale || newY !== object.y * scale) {
+          dispatch(changeObjectPosition({ 
+            objectId: object.id, 
+            x: actualX, 
+            y: actualY 
+          }));
+        }
       }
     },
     onResizeEnd: (newWidth, newHeight, newX, newY) => {
-      if (object && currentSlideId) {
+      if (object) {
         const actualWidth = newWidth / scale;
         const actualHeight = newHeight / scale;
         const actualX = newX / scale;
         const actualY = newY / scale;
         dispatch(changeObjectSize({ 
-          slideId: currentSlideId, 
           objectId: object.id, 
           width: actualWidth, 
-          height: actualHeight, 
-          x: actualX, 
-          y: actualY 
+          height: actualHeight 
         }));
+        if (newX !== object.x * scale || newY !== object.y * scale) {
+          dispatch(changeObjectPosition({ 
+            objectId: object.id, 
+            x: actualX, 
+            y: actualY 
+          }));
+        }
       }
     },
     minWidth: MIN_DIV_WIDTH,
@@ -106,13 +101,13 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
   });
 
   function handleClick(): void {
-    if (isPreview || !object || !currentSlideId) return;
+    if (isPreview || !object) return;
 
     if (isSelected) {
       dispatch(selectObject(null));
     } else {
       dispatch(selectObject({ 
-        slideId: currentSlideId, 
+        slideId: object.slideId, 
         objectId: object.id, 
         typeElement: 'text' 
       }));

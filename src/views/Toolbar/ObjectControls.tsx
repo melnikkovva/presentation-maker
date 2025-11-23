@@ -1,10 +1,6 @@
 import { useState, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { 
-    addTextObject, 
-    addImageObject, 
-    removeObjectFromSlide 
-} from '../../store/slices/slidesSlice';
+import { addTextObject, addImageObject, removeObject } from '../../store/slices/objectsSlice';
 import { selectCurrentSlideId, selectSelectedObjectId } from '../../store/selectors/presentationSelectors';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
@@ -30,14 +26,11 @@ export function ObjectControls() {
   }
 
   function handleDeleteSelectedObject(): void {
-    if (!currentSlideId || !selectedObjectId) {
+    if (!selectedObjectId) {
       console.log('Нет выбранного объекта для удаления');
       return;
     }
-    dispatch(removeObjectFromSlide({ 
-        slideId: currentSlideId, 
-        objectId: selectedObjectId 
-    })); 
+    dispatch(removeObject(selectedObjectId)); 
   }
 
   function handleAddImageFromComputer(): void {

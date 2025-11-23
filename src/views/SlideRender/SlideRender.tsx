@@ -1,29 +1,28 @@
 import { useAppSelector } from "../../store/hooks";
 import { TextObject } from "../../common/Text/TextObject";
 import { ImageObject } from  "../../common/Image/ImageObject";
-import type { Slide } from "../../store/types/types_of_presentation";
+import { selectSlideById, selectObjectsBySlideId } from "../../store/selectors/presentationSelectors";
 import styles from './SlideRender.module.css';
 
-interface SlideRenderProps {
+type SlideRenderProps = {
   slideId: string | null;
   isPreview?: boolean;
 }
 
 export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
-  const slide = useAppSelector(state => 
-    state.slides.slides.find(s => s.id === slideId)
-  );
+  const slide = useAppSelector(selectSlideById(slideId || ''));
+  const objects = useAppSelector(selectObjectsBySlideId(slideId || ''));
 
   if (!slide) {
     return null;
   }
 
-  function getSlideBackgroundStyle(slide: Slide): React.CSSProperties {
-    if (slide.background.type === 'color') {
-      return { backgroundColor: slide.background.color };
+  function getSlideBackgroundStyle(slideBackground: any): React.CSSProperties {
+    if (slideBackground.type === 'color') {
+      return { backgroundColor: slideBackground.color };
     } else {
       return { 
-        backgroundImage: `url(${slide.background.src})`,
+        backgroundImage: `url(${slideBackground.src})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }; 
@@ -31,7 +30,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
   }
 
   const style: React.CSSProperties = {
-    ...getSlideBackgroundStyle(slide),
+    ...getSlideBackgroundStyle(slide.background),
     position: 'relative',
     width: '100%',
     height: '100%',
@@ -40,8 +39,8 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
 
   return (
     <div style={style}>
-      {slide.slideObjects.length > 0 
-        ? slide.slideObjects.map(object => {
+      {objects.length > 0 
+        ? objects.map(object => {
             if (object.type === 'text') {
               return (
                 <TextObject

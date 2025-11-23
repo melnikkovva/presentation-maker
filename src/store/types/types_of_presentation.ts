@@ -1,14 +1,21 @@
 export type Presentation = {
   id: string;
   title: string;
-  slides: Slides;
-  selection: Selection | null;
+}
+
+export type Slides = {
+  slides: Array<Slide>;
+  currentSlideId: string | null;
 }
 
 export type Slide = {
   id: string;
-  slideObjects: Array<SlideObject>;
+  objectIds: string[]; 
   background: Background;
+}
+
+export type Objects = {
+  objects: Array<SlideObject>;
 }
 
 export type SlideObject = TextObject | ImageObject;
@@ -23,11 +30,6 @@ export type Color = {
 export type Picture = {
   type: 'picture';
   src: string;
-}
-
-export type Slides = {
-  slides: Slide[];
-  currentSlideId: string | null;
 }
 
 export type Selection = {
@@ -56,11 +58,13 @@ export type TextObject = BaseSlideObject & {
   textAlign: TextAlign;
   color: string;
   shadow: TextShadow | null;
+  slideId: string; 
 }
 
 export type ImageObject = BaseSlideObject & {
   type: 'image';
   src: string;
+  slideId: string; 
 }
 
 type BaseSlideObject = {

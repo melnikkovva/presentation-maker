@@ -1,64 +1,99 @@
 import type { RootState } from '../index';
 
-export const selectPresentation = (state: RootState) => state.presentation;
+export const selectTitle = (state: RootState) => state.title;
 export const selectSlidesState = (state: RootState) => state.slides;
-export const selectSelectionState = (state: RootState) => state.selection;
+export const selectObjectsState = (state: RootState) => state.objects;
+export const selectSelection = (state: RootState) => state.selection;
 
-export const selectTitle = (state: RootState) => {
-  return state.presentation.title;
-};
+export const selectPresentationTitle = (state: RootState) => state.title;
 
-export const selectSlides = (state: RootState) => {
-  return state.slides.slides;
-};
-
-export const selectCurrentSlideId = (state: RootState) => {
-  return state.slides.currentSlideId;
-};
+export const selectSlides = (state: RootState) => state.slides.slides;
+export const selectCurrentSlideId = (state: RootState) => state.slides.currentSlideId;
 
 export const selectCurrentSlide = (state: RootState) => {
   const slides = selectSlides(state);
   const currentSlideId = selectCurrentSlideId(state);
-  return slides.find(slide => slide.id === currentSlideId);
+  return slides.find(slide => slide.id === currentSlideId) || null;
 };
 
-export const selectSelection = (state: RootState) => {
-  return state.selection;
+export const selectSlideById = (slideId: string) => (state: RootState) => {
+  const slides = selectSlides(state);
+  return slides.find(slide => slide.id === slideId) || null;
 };
 
-export const selectSelectedObjectId = (state: RootState) => {
-  return state.selection?.objectId || null
-}
+export const selectAllObjects = (state: RootState) => state.objects.objects;
 
-export const selectSelectedSlideId = (state: RootState) => {
-  return state.selection?.slideId || null
-}
-
-export const selectSelectedTypeElement = (state: RootState) => {
-  return state.selection?.typeElement || null
-}
-
-export const selectObjectsInCurrentSlide = (state: RootState) => {
-  const currentSlide = selectCurrentSlide(state);
-  return currentSlide?.slideObjects || [];
+export const selectObjectsBySlideId = (slideId: string) => (state: RootState) => {
+  const objects = selectAllObjects(state);
+  return objects.filter(obj => obj.slideId === slideId);
 };
 
-export const selectSelectedObjectInCurrentSlide = (state: RootState) => {
-  const currentSlide = selectCurrentSlide(state);
-  const selectedObjectId = selectSelectedObjectId(state);
-  return currentSlide?.slideObjects.find(obj => obj.id === selectedObjectId) || null;
-};
-
-export const selectIsObjectSelected = (objectId: string) => (state: RootState) => {
-  const selectedObjectId = selectSelectedObjectId(state);
-  return selectedObjectId === objectId;
-};
-
-export const selectIsSlideSelected = (slideId: string) => (state: RootState) => {
+export const selectCurrentSlideObjects = (state: RootState) => {
   const currentSlideId = selectCurrentSlideId(state);
-  return currentSlideId === slideId;
+  const objects = selectAllObjects(state);
+  
+  if (!currentSlideId) return [];
+  return objects.filter(obj => obj.slideId === currentSlideId);
 };
 
-export const selectSlidesCount = (state: RootState) => {
-  return state.slides.slides.length
-} 
+export const selectObjectById = (objectId: string) => (state: RootState) => {
+  const objects = selectAllObjects(state);
+  return objects.find(obj => obj.id === objectId) || null;
+};
+
+export const selectSelectedSlideId = (state: RootState) => state.selection?.slideId || null;
+export const selectSelectedObjectId = (state: RootState) => state.selection?.objectId || null;
+export const selectSelectedObjectType = (state: RootState) => state.selection?.typeElement || 'none';
+
+export const selectSelectedObject = (state: RootState) => {
+  const selection = selectSelection(state);
+  const objects = selectAllObjects(state);
+  
+  if (!selection?.objectId) return null;
+  return objects.find(obj => obj.id === selection.objectId) || null;
+};
+
+export const selectImageObjectById = (objectId: string) => (state: RootState) => {
+  const objects = selectAllObjects(state);
+  const object = objects.find(obj => obj.id === objectId);
+  return object && object.type === 'image' ? object : null;
+};
+
+export const selectTextObjectById = (objectId: string) => (state: RootState) => {
+  const objects = selectAllObjects(state);
+  const object = objects.find(obj => obj.id === objectId);
+  return object && object.type === 'text' ? object : null;
+};
+
+export const selectSlideObjects = (slideId: string) => (state: RootState) => {
+  const slide = selectSlideById(slideId)(state);
+  const objects = selectAllObjects(state);
+  
+  if (!slide) return [];
+  return objects.filter(obj => obj.slideId === slideId);
+};
+
+export const selectSlideObjectCount = (slideId: string) => (state: RootState) => {
+  const objects = selectObjectsBySlideId(slideId)(state);
+  return objects.length;
+};
+
+export const selectImageObjectsBySlideId = (slideId: string) => (state: RootState) => {
+  const objects = selectObjectsBySlideId(slideId)(state);
+  return objects.filter(obj => obj.type === 'image');
+};
+
+export const selectTextObjectsBySlideId = (slideId: string) => (state: RootState) => {
+  const objects = selectObjectsBySlideId(slideId)(state);
+  return objects.filter(obj => obj.type === 'text');
+};
+
+export const selectSlideObjectIds = (slideId: string) => (state: RootState) => {
+  const slide = selectSlideById(slideId)(state);
+  return slide?.objectIds || [];
+};
+
+export const selectCurrentSlideObjectIds = (state: RootState) => {
+  const currentSlide = selectCurrentSlide(state);
+  return currentSlide?.objectIds || [];
+};
