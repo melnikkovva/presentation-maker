@@ -13,6 +13,8 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
   const slide = useAppSelector(selectSlideById(slideId || ''));
   const objects = useAppSelector(selectObjectsBySlideId(slideId || ''));
 
+  const objects = useAppSelector(selectObjectsInCurrentSlide);
+
   if (!slide) {
     return null;
   }
@@ -49,7 +51,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
                   isPreview={isPreview}
                 />
               );
-            } else {
+            } else if (object.type === 'image') {
               return (
                 <ImageObject
                   key={object.id}
@@ -58,6 +60,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
                 />
               );
             }
+            return null;
           })                             
         : (
             <div className={styles.emptySlide}>

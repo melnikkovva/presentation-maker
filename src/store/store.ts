@@ -9,8 +9,8 @@ export const store = configureStore({
   reducer: {
     title: titleReducer,
     slides: slidesReducer,
-    selection: selectionReducer,
-    objects: objectsReducer
+    objects: objectsReducer,
+    selection: selectionReducer
   },
 });
 
