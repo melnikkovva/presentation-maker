@@ -2,7 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import titleReducer from './slices/titleSlice';
 import slidesReducer from './slices/slidesSlice';
 import selectionReducer from './slices/selectionSlice';
-import objectsReducer from './slices/objectsSlice'
+import objectsReducer from './slices/objectsSlice';
+import { undoStack } from './UndoRedo';
 
 export const store = configureStore({
   reducer: {
@@ -15,3 +16,4 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export { undoStack };

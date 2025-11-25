@@ -11,9 +11,10 @@ type DraggableSlideRenderProps = {
     slideId: string;
     index: number;
     onReorder: (fromIndex: number, toIndex: number) => void;
+    onClick?: () => void;
 }
 
-export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSlideRenderProps) {
+export function DraggableSlideRender({ slideId, index, onReorder, onClick }: DraggableSlideRenderProps) {
     const currentSlideId = useAppSelector(selectCurrentSlideId);
     const slides = useAppSelector(selectSlides);
     const dispatch = useAppDispatch();
@@ -56,6 +57,7 @@ export function DraggableSlideRender({ slideId, index, onReorder }: DraggableSli
 
     function handleSlideClick(): void {
         if (!drag.isDragging) {
+            onClick?.(); 
             dispatch(selectSlide(slideId));         
         }
     }

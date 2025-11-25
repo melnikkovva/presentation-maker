@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { selectObject } from '../../store/slices/selectionSlice';
-import { changeObjectPosition, changeObjectSize } from '../../store/slices/objectsSlice';
-import { selectTextObjectById, selectSelectedObjectId } from '../../store/selectors/presentationSelectors';
+import { toggleObjectSelection, clearSelection } from '../../store/slices/selectionSlice';
+import { changeObjectPosition, changeObjectSize, changeMultipleObjectsPosition } from '../../store/slices/objectsSlice';
+import { selectTextObjectById, selectSelectedObjects, isObjectSelected } from '../../store/selectors/presentationSelectors';
 import { DEFAULT_PADDING_TEXT_FIELD, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PREVIEW_SCALE } from '../../store/data/const_for_presantation';
 import { useDnd } from '../../hooks/useDragAndDrop';
 import { useResize } from '../../hooks/useResize';
@@ -14,40 +14,88 @@ type TextObjectProps = {
   isPreview: boolean;
 }
 
-export function TextObject({ objectId, isPreview }: TextObjectProps) {
-  const object = useAppSelector(selectTextObjectById(objectId));
-  const selectedObjectId = useAppSelector(selectSelectedObjectId);
+export function TextObject(props: TextObjectProps) {
+  const object = useAppSelector(selectTextObjectById(props.objectId));
+  const selectedObjects = useAppSelector(selectSelectedObjects);
+  const isSelected = useAppSelector(state => isObjectSelected(state, props.objectId));
   const dispatch = useAppDispatch();
 
-  const scale = isPreview ? PREVIEW_SCALE : 1;
-  const isInteractive = !isPreview;
-  const isSelected = objectId === selectedObjectId;
+  const scale = props.isPreview ? PREVIEW_SCALE : 1;
+  const isInteractive = !props.isPreview;
+
+  const currentX = object?.x ? object.x * scale : 0;
+  const currentY = object?.y ? object.y * scale : 0;
+
+  const hasMultipleSelection = selectedObjects.length > 1;
+  const isPartOfMultipleSelection = isSelected && hasMultipleSelection;
 
   const drag = useDnd({
-    startX: object?.x ? object.x * scale : 0,
-    startY: object?.y ? object.y * scale : 0,
-    onDrag: (newX, newY) => {
+    startX: currentX,
+    startY: currentY,
+    onDrag: (newX, newY, deltaX, deltaY) => {
       if (object) {
         const actualX = newX / scale;
         const actualY = newY / scale;
-        dispatch(changeObjectPosition({ 
-          objectId: object.id, 
-          x: actualX, 
-          y: actualY 
-        }));
+
+        if (isPartOfMultipleSelection) {
+          const deltaXActual = deltaX / scale;
+          const deltaYActual = deltaY / scale;
+
+          const objectsToMove = selectedObjects
+            .filter(item => item.objectId !== props.objectId)
+            .map(item => ({
+              objectId: item.objectId,
+              deltaX: deltaXActual,
+              deltaY: deltaYActual
+            }));
+
+          dispatch(changeMultipleObjectsPosition({
+            primaryObjectId: props.objectId,
+            primaryNewX: actualX,
+            primaryNewY: actualY,
+            otherObjects: objectsToMove
+          }));
+        } else {
+          dispatch(changeObjectPosition({
+            objectId: object.id,
+            x: actualX,
+            y: actualY
+          }));
+        }
       }
     },
     onFinish: (newX, newY) => {
       if (object) {
         const actualX = newX / scale;
         const actualY = newY / scale;
-        dispatch(changeObjectPosition({ 
-          objectId: object.id, 
-          x: actualX, 
-          y: actualY 
-        }));
+
+        if (isPartOfMultipleSelection) {
+          const deltaX = (newX - currentX) / scale;
+          const deltaY = (newY - currentY) / scale;
+
+          const objectsToMove = selectedObjects
+            .filter(item => item.objectId !== props.objectId)
+            .map(item => ({
+              objectId: item.objectId,
+              deltaX: deltaX,
+              deltaY: deltaY
+            }));
+
+          dispatch(changeMultipleObjectsPosition({
+            primaryObjectId: props.objectId,
+            primaryNewX: actualX,
+            primaryNewY: actualY,
+            otherObjects: objectsToMove
+          }));
+        } else {
+          dispatch(changeObjectPosition({
+            objectId: object.id,
+            x: actualX,
+            y: actualY
+          }));
+        }
       }
-    }
+    },
   });
 
   const resize = useResize({
@@ -55,23 +103,23 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
     height: object?.h ? object.h * scale : 50,
     x: object?.x ? object.x * scale : 0,
     y: object?.y ? object.y * scale : 0,
-    enabled: isInteractive && isSelected,
+    enabled: isInteractive && isSelected && !hasMultipleSelection,
     onResize: (newWidth, newHeight, newX, newY) => {
       if (object) {
         const actualWidth = newWidth / scale;
         const actualHeight = newHeight / scale;
         const actualX = newX / scale;
         const actualY = newY / scale;
-        dispatch(changeObjectSize({ 
-          objectId: object.id, 
-          width: actualWidth, 
-          height: actualHeight 
+        dispatch(changeObjectSize({
+          objectId: object.id,
+          width: actualWidth,
+          height: actualHeight
         }));
         if (newX !== object.x * scale || newY !== object.y * scale) {
-          dispatch(changeObjectPosition({ 
-            objectId: object.id, 
-            x: actualX, 
-            y: actualY 
+          dispatch(changeObjectPosition({
+            objectId: object.id,
+            x: actualX,
+            y: actualY
           }));
         }
       }
@@ -82,16 +130,16 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
         const actualHeight = newHeight / scale;
         const actualX = newX / scale;
         const actualY = newY / scale;
-        dispatch(changeObjectSize({ 
-          objectId: object.id, 
-          width: actualWidth, 
-          height: actualHeight 
+        dispatch(changeObjectSize({
+          objectId: object.id,
+          width: actualWidth,
+          height: actualHeight
         }));
         if (newX !== object.x * scale || newY !== object.y * scale) {
-          dispatch(changeObjectPosition({ 
-            objectId: object.id, 
-            x: actualX, 
-            y: actualY 
+          dispatch(changeObjectPosition({
+            objectId: object.id,
+            x: actualX,
+            y: actualY
           }));
         }
       }
@@ -100,19 +148,27 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
     minHeight: MIN_DIV_HEIGHT
   });
 
-  function handleClick(): void {
-    if (isPreview || !object) return;
+  function handleClick(event: React.MouseEvent): void {
+    if (props.isPreview || !object) return;
 
-    if (isSelected) {
-      dispatch(selectObject(null));
-    } else {
-      dispatch(selectObject({ 
-        slideId: object.slideId, 
-        objectId: object.id, 
-        typeElement: 'text' 
+    if (event.ctrlKey || event.metaKey) {
+      dispatch(toggleObjectSelection({
+        slideId: object.slideId,
+        objectId: object.id,
+        typeElement: 'text'
       }));
+    } else {
+      dispatch(clearSelection());
+      if (!isSelected) {
+        dispatch(toggleObjectSelection({
+          slideId: object.slideId,
+          objectId: object.id,
+          typeElement: 'text'
+        }));
+      } 
     }
   }
+  
 
   if (!object) {
     return null;
@@ -129,7 +185,8 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
 
   const containerClasses = [
     styles.container,
-    isSelected ? styles.containerSelected : ''
+    isSelected ? styles.containerSelected : '',
+    isPartOfMultipleSelection ? styles.multiSelected : ''
   ].join(' ');
 
   const textClasses = [
@@ -173,7 +230,7 @@ export function TextObject({ objectId, isPreview }: TextObjectProps) {
         {object.text}
       </div>
 
-      {isSelected && isInteractive && (
+      {isSelected && isInteractive && !hasMultipleSelection && (
         <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />
       )}
     </div>

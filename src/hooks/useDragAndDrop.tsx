@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 type Axis = 'both' | 'x' | 'y';
 
 type DndArgs = {
   startX: number;
   startY: number;
-  onDrag?: (newX: number, newY: number) => void;
+  onDrag?: (newX: number, newY: number, deltaX: number, deltaY: number) => void;
   onFinish?: (newX: number, newY: number) => void;
   axis?: Axis;
-
 };
 
 type DndResult = {
@@ -24,44 +23,43 @@ export function useDnd({
   onDrag,
   onFinish,
   axis = 'both',
-
 }: DndArgs): DndResult {
   const [isDragging, setIsDragging] = useState(false);
-  const [offsetX, setOffsetX] = useState(0);
-  const [offsetY, setOffsetY] = useState(0);
-  const [top, setTop] = useState(startY);
-  const [left, setLeft] = useState(startX);
-  const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: startX, y: startY });
+  const [dragStartPosition, setDragStartPosition] = useState({ x: 0, y: 0 });
 
-  const onMouseDown = (event: React.MouseEvent) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (!isDragging) {
+      setPosition({ x: startX, y: startY });
+    }
+  }, [startX, startY, isDragging]);
 
+  const onMouseDown = useCallback((event: React.MouseEvent) => {
+    event.preventDefault(); 
     setIsDragging(true);
-    setOffsetX(left - event.clientX);
-    setOffsetY(top - event.clientY);
-    setStartDragPosition({ x: event.clientX, y: event.clientY });
-
-  };
+    setDragStartPosition({ 
+      x: event.clientX - position.x, 
+      y: event.clientY - position.y 
+    });
+  }, [position]);
 
   useEffect(() => {
     if (!isDragging) return;
 
     const handleMouseMove = (event: MouseEvent) => {
-      let newLeft = left;
-      let newTop = top;
+      let newX = event.clientX - dragStartPosition.x;
+      let newY = event.clientY - dragStartPosition.y;
 
-      if (axis === 'both' || axis === 'x') newLeft = event.clientX + offsetX;
-      if (axis === 'both' || axis === 'y') newTop = event.clientY + offsetY;
+      const deltaX = newX - position.x;
+      const deltaY = newY - position.y;
 
-      setLeft(newLeft);
-      setTop(newTop);
-
-      onDrag?.(newLeft, newTop);
+      setPosition({ x: newX, y: newY });
+      onDrag?.(newX, newY, deltaX, deltaY);
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      onFinish?.(left, top);
+      onFinish?.(position.x, position.y);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -71,17 +69,12 @@ export function useDnd({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [
-    isDragging,
-    offsetX,
-    offsetY,
-    axis,
-    left,
-    top,
-    onDrag,
-    onFinish,
-    startDragPosition,
-  ]);
+  }, [isDragging, position, dragStartPosition, axis, onDrag, onFinish]);
 
-  return { isDragging, top, left, onMouseDown };
+  return { 
+    isDragging, 
+    top: position.y, 
+    left: position.x, 
+    onMouseDown 
+  };
 }

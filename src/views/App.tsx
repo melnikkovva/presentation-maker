@@ -1,3 +1,4 @@
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { PresentationTitle } from './PresentationTitle/PresentationTitle';
 import { Workspace } from './Workspace/Workspace';
 import { SlideList } from './SlideList/SlideList';
@@ -5,6 +6,7 @@ import { Toolbar } from './Toolbar/Toolbar';
 import styles from './App.module.css';
 
 export function App() {
+    useKeyboardShortcuts();
     return (
         <div className={styles.app}>
             <PresentationTitle />

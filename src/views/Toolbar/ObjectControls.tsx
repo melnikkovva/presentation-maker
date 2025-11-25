@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { addTextObject, addImageObject, removeObject } from '../../store/slices/objectsSlice';
-import { selectCurrentSlideId, selectSelectedObjectId } from '../../store/selectors/presentationSelectors';
+import { addTextObject, addImageObject, removeObject, removeMultipleObjects } from '../../store/slices/objectsSlice';
+import { selectCurrentSlideId, selectSelectedObjectIds,selectSelectedObjects } from '../../store/selectors/presentationSelectors';
+import { clearSelection } from '../../store/slices/selectionSlice';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Toolbar.module.css';
@@ -17,20 +18,30 @@ export function ObjectControls() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const currentSlideId = useAppSelector(selectCurrentSlideId);
-  const selectedObjectId = useAppSelector(selectSelectedObjectId);
+  const selectedObjects = useAppSelector(selectSelectedObjects);
+  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const dispatch = useAppDispatch();
+
+  const hasSelection = selectedObjects.length > 0;
 
   function handleAddText(): void {
     if (!currentSlideId) return;
     dispatch(addTextObject({ slideId: currentSlideId }));
   }
 
-  function handleDeleteSelectedObject(): void {
-    if (!selectedObjectId) {
-      console.log('Нет выбранного объекта для удаления');
+  function handleDeleteSelectedObjects(): void {
+    if (!hasSelection) {
+      console.log('Нет выбранных объектов для удаления');
       return;
     }
-    dispatch(removeObject(selectedObjectId)); 
+
+    if (selectedObjectIds.length === 1) {
+      dispatch(removeObject(selectedObjectIds[0]));
+    } else {
+      dispatch(removeMultipleObjects(selectedObjectIds));
+    }
+    
+    dispatch(clearSelection());
   }
 
   function handleAddImageFromComputer(): void {
@@ -144,15 +155,16 @@ export function ObjectControls() {
                     Добавить
                 </Button>
             </div>
-        </div>
+          </div>
         )}
       </div>
       
-        <Button 
-            onClick={handleDeleteSelectedObject}
-            icon={deleteObjectIcon}
-            disabled={isLoading}
-        />
+      <Button 
+        onClick={handleDeleteSelectedObjects}
+        icon={deleteObjectIcon}
+        disabled={!hasSelection || isLoading}
+      >
+      </Button>
     </div>
   );
 }

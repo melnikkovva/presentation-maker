@@ -8,7 +8,7 @@ export const titleSlice = createSlice({
   initialState,
   reducers: {
     renamePresentation: (state, action: PayloadAction<string>) => {
-      state = action.payload;
+      return state = action.payload;
     }
   },
 });

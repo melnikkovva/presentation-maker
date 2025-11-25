@@ -48,40 +48,16 @@ export const slidesSlice = createSlice({
       state.slides.splice(toIndex, 0, movedSlide);
     },
     
-    duplicateSlide: (state, action: PayloadAction<string>) => {
-      const slideId = action.payload;
-      const originalSlide = state.slides.find(slide => slide.id === slideId);
-      
-      if (originalSlide) {
-        const duplicatedSlide: Slide = {
-          ...originalSlide,
-          id: generateId(),
-          objectIds: [] 
-        };
-        
-        const originalIndex = state.slides.findIndex(slide => slide.id === slideId);
-        state.slides.splice(originalIndex + 1, 0, duplicatedSlide);
-      }
-    },
-    
-    setCurrentSlide: (state, action: PayloadAction<string>) => {
-      state.currentSlideId = action.payload;
-    },
-    
-    addObjectIdToSlide: (state, action: PayloadAction<{ slideId: string; objectId: string }>) => {
-      const { slideId, objectId } = action.payload;
-      const slide = state.slides.find(slide => slide.id === slideId);
-      if (slide) {
-        slide.objectIds.push(objectId);
-      }
-    },
-    
     removeObjectIdFromSlide: (state, action: PayloadAction<{ slideId: string; objectId: string }>) => {
       const { slideId, objectId } = action.payload;
       const slide = state.slides.find(slide => slide.id === slideId);
       if (slide) {
         slide.objectIds = slide.objectIds.filter(id => id !== objectId);
       }
+    },
+    
+    setCurrentSlide: (state, action: PayloadAction<string>) => {
+      state.currentSlideId = action.payload;
     }
   },
 });
@@ -91,9 +67,7 @@ export const {
   removeSlide, 
   changeSlideBackground, 
   reorderSlides,
-  duplicateSlide,
-  setCurrentSlide,
-  addObjectIdToSlide,
-  removeObjectIdFromSlide
+  removeObjectIdFromSlide,
+  setCurrentSlide
 } = slidesSlice.actions;
 export default slidesSlice.reducer;

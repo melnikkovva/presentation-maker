@@ -32,11 +32,13 @@ export type Picture = {
   src: string;
 }
 
-export type Selection = {
+export type SelectionItem = {
   slideId: string;
   objectId: string;
   typeElement: 'text' | 'image' | 'none';
 }
+
+export type Selection = SelectionItem[];
 
 export type TextDecoration = 'underline' | 'line-through' | 'none';
 export type TextAlign = 'left' | 'center' | 'right' | 'justify';
@@ -74,5 +76,3 @@ type BaseSlideObject = {
   w: number;
   h: number;
 }
-
-export type ModalType = 'imageUrl' | 'backgroundUrl' | 'color' | null;

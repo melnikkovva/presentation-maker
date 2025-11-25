@@ -3,6 +3,7 @@ import { ObjectControls } from './ObjectControls';
 import { BackgroundControls } from './BackgroundControls';
 import { ExportControls } from './ExportControls';
 import styles from './Toolbar.module.css';
+import { UndoRedo } from './UndoRedo';
 
 export function Toolbar() {
     return (
@@ -25,6 +26,9 @@ export function Toolbar() {
             <div className={styles.toolbarSection}>
                 <div className={styles.sectionTitle}>Экспорт</div>
                 <ExportControls />
+            </div>
+            <div className={styles.toolbarSection}>
+                <UndoRedo />
             </div>
         </div>
     );

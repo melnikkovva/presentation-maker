@@ -1,8 +1,9 @@
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { reorderSlides } from '../../store/slices/slidesSlice';
+import { reorderSlides, setCurrentSlide } from '../../store/slices/slidesSlice';
 import styles from './SlideList.module.css';
 import { DraggableSlideRender } from '../SlideRender/DraggableSlideRender';
 import { selectSlides } from '../../store/selectors/presentationSelectors';
+import {selectSlide} from '../../store/slices/selectionSlice'
 
 export function SlideList() {
     const slides = useAppSelector(selectSlides);
@@ -10,6 +11,11 @@ export function SlideList() {
 
     function handleSlideReorder(fromIndex: number, toIndex: number): void {
         dispatch(reorderSlides({ fromIndex, toIndex }));
+    }
+
+    function handleCurrentslide(slideId: string): void {
+        dispatch(selectSlide(slideId));
+        dispatch(setCurrentSlide(slideId)); 
     }
 
     return (
@@ -27,6 +33,7 @@ export function SlideList() {
                         slideId={slide.id}
                         index={index}
                         onReorder={handleSlideReorder}
+                        onClick={() => handleCurrentslide(slide.id)}
                     />
                 ))}
             </div>
