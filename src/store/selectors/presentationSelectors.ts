@@ -1,14 +1,15 @@
 import type { RootState } from '../store';
+import type { AppState } from '../types/types_of_presentation';
 
-export const selectTitle = (state: RootState) => state.title;
-export const selectSlidesState = (state: RootState) => state.slides;
-export const selectObjectsState = (state: RootState) => state.objects;
-export const selectSelection = (state: RootState) => state.selection;
+export const selectTitle = (state: RootState) => state.present.title;
+export const selectSlidesState = (state: RootState) => state.present.slides;
+export const selectObjectsState = (state: RootState) => state.present.objects;
+export const selectSelection = (state: RootState) => state.present.selection;
 
-export const selectPresentationTitle = (state: RootState) => state.title;
+export const selectPresentationTitle = (state: RootState) => state.present.title;
 
-export const selectSlides = (state: RootState) => state.slides.slides;
-export const selectCurrentSlideId = (state: RootState) => state.slides.currentSlideId;
+export const selectSlides = (state: RootState) => state.present.slides.slides;
+export const selectCurrentSlideId = (state: RootState) => state.present.slides.currentSlideId;
 
 export const selectCurrentSlide = (state: RootState) => {
   const slides = selectSlides(state);
@@ -21,7 +22,7 @@ export const selectSlideById = (slideId: string) => (state: RootState) => {
   return slides.find(slide => slide.id === slideId) || null;
 };
 
-export const selectAllObjects = (state: RootState) => state.objects.objects;
+export const selectAllObjects = (state: RootState) => state.present.objects.objects;
 
 export const selectObjectsBySlideId = (slideId: string) => (state: RootState) => {
   const objects = selectAllObjects(state);
@@ -40,10 +41,20 @@ export const selectTextObjectById = (objectId: string) => (state: RootState) => 
   return object && object.type === 'text' ? object : null;
 };
 
-export const selectSelectedObjects = (state: RootState) => state.selection;
+export const selectSelectedObjects = (state: RootState) => state.present.selection;
 
 export const isObjectSelected = (state: RootState, objectId: string) => 
-  state.selection.some(item => item.objectId === objectId);
+  state.present.selection.some(item => item.objectId === objectId);
 
 export const selectSelectedObjectIds = (state: RootState) => 
-  state.selection.map(item => item.objectId);
+  state.present.selection.map(item => item.objectId);
+
+export const selectAppState = (state: RootState): AppState => ({
+  title: state.present.title,
+  slides: state.present.slides,
+  selection: state.present.selection,
+  objects: state.present.objects,
+});
+
+export const selectPastLength = (state: RootState) => state.past.length;
+export const selectFutureLength = (state: RootState) => state.future.length;

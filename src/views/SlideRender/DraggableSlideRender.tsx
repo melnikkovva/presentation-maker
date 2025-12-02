@@ -26,7 +26,7 @@ export function DraggableSlideRender({ slideId, index, onReorder, onClick }: Dra
         startX: 0,
         startY: 0,
         axis: 'y', 
-        onDrag: (newX, newY) => {
+        onDrag: (_, newY) => {
             if (dragStartIndex !== null) {
                 const deltaY = newY;
                 const slideHeight = SLIDE_HEIGHT * PREVIEW_SCALE; 
@@ -39,7 +39,7 @@ export function DraggableSlideRender({ slideId, index, onReorder, onClick }: Dra
                 }
             }
         },
-        onFinish: (newX, newY) => {
+        onFinish: (_, newY) => {
             if (dragStartIndex !== null) {
                 const deltaY = newY;
                 const slideHeight = SLIDE_HEIGHT * PREVIEW_SCALE; 

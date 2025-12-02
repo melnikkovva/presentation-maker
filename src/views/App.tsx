@@ -1,12 +1,12 @@
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { PresentationTitle } from './PresentationTitle/PresentationTitle';
 import { Workspace } from './Workspace/Workspace';
 import { SlideList } from './SlideList/SlideList';
 import { Toolbar } from './Toolbar/Toolbar';
 import styles from './App.module.css';
+import { useHotKeys } from '../hooks/useHotKeys';
 
 export function App() {
-    useKeyboardShortcuts();
+    useHotKeys();
     return (
         <div className={styles.app}>
             <PresentationTitle />

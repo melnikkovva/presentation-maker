@@ -11,6 +11,8 @@ function generateId(): string {
   return crypto.randomUUID();
 }
 
+type PositionUpdate = { objectId: string; x: number; y: number };
+
 const createDefaultTextObject = (slideId: string, text?: string): TextObject => ({
   type: 'text',
   id: generateId(),
@@ -79,32 +81,24 @@ export const objectsSlice = createSlice({
         object.h = height;
       }
     },
-
-    changeMultipleObjectsPosition: (state, action: PayloadAction<{
-      primaryObjectId: string;
-      primaryNewX: number;
-      primaryNewY: number;
-      otherObjects: Array<{
-        objectId: string;
-        deltaX: number;
-        deltaY: number;
-      }>;
-    }>) => {
-      const { primaryObjectId, primaryNewX, primaryNewY, otherObjects } = action.payload;
-      
-      const primaryObject = state.objects.find(obj => obj.id === primaryObjectId);
-      if (primaryObject) {
-        primaryObject.x = primaryNewX;
-        primaryObject.y = primaryNewY;
+    
+    updateObjectPosition: (state, action: PayloadAction<{objectId: string, x: number, y: number}>) => {
+      const object = state.objects.find(obj => obj.id === action.payload.objectId);
+      if (object) {
+        object.x = action.payload.x;
+        object.y = action.payload.y;
       }
-      
-      otherObjects.forEach(({ objectId, deltaX, deltaY }) => {
-        const object = state.objects.find(obj => obj.id === objectId);
-        if (object) {
-          object.x += deltaX;
-          object.y += deltaY;
+    },
+
+    updateObjectsPositions: (state, action: PayloadAction<PositionUpdate[]>) => {
+      const updates = action.payload;
+      for (const { objectId, x, y } of updates) {
+        const obj = state.objects.find(o => o.id === objectId);
+        if (obj) {
+          obj.x = x;
+          obj.y = y;
         }
-      });
+      }
     },
     
     removeObjectsBySlideId: (state, action: PayloadAction<string>) => {
@@ -127,7 +121,8 @@ export const {
   changeObjectPosition,
   changeObjectSize,
   removeObjectsBySlideId,
-  changeMultipleObjectsPosition,
+  updateObjectPosition,
+  updateObjectsPositions,
   removeMultipleObjects
 } = objectsSlice.actions;
 export default objectsSlice.reducer;

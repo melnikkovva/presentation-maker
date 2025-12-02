@@ -32,14 +32,6 @@ export type Picture = {
   src: string;
 }
 
-export type SelectionItem = {
-  slideId: string;
-  objectId: string;
-  typeElement: 'text' | 'image' | 'none';
-}
-
-export type Selection = SelectionItem[];
-
 export type TextDecoration = 'underline' | 'line-through' | 'none';
 export type TextAlign = 'left' | 'center' | 'right' | 'justify';
 
@@ -76,3 +68,28 @@ type BaseSlideObject = {
   w: number;
   h: number;
 }
+
+export type AppState = {
+  title: string;
+  slides: Slides;
+  selection: Selection;
+  objects: Objects;
+};
+
+export type BaseSelectionItem = {
+  slideId: string;
+  objectId: string;
+}
+
+export type ObjectSelectionItem = BaseSelectionItem & {
+  typeElement: 'text' | 'image';
+}
+
+export type SlideSelectionItem = BaseSelectionItem & {
+  objectId: ''; 
+  typeElement: 'none';
+}
+
+export type SelectionItem = ObjectSelectionItem | SlideSelectionItem;
+
+export type Selection = SelectionItem[];

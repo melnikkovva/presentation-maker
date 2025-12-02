@@ -2,8 +2,8 @@ import { SlideControls } from './SlideControls';
 import { ObjectControls } from './ObjectControls';
 import { BackgroundControls } from './BackgroundControls';
 import { ExportControls } from './ExportControls';
-import styles from './Toolbar.module.css';
 import { UndoRedo } from './UndoRedo';
+import styles from './Toolbar.module.css';
 
 export function Toolbar() {
     return (

@@ -1,49 +1,77 @@
-export function createUndoStack() {
-    const past: Array<{
-        doWithData: () => void;
-        undoWithData: () => void;
-    }> = [];
-    const future: Array<{
-        doWithData: () => void;
-        undoWithData: () => void;
-    }> = [];
+import type { Reducer } from "redux";
+import type { AppState } from "./types/types_of_presentation";
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-    return {
-        push(doFn: (...args: any[]) => void, undoFn: (...args: any[]) => void, ...argsToClone: any[]) {
-            const clonedArgs = structuredClone(argsToClone);
-            const action = {
-                doWithData: () => doFn(...clonedArgs),
-                undoWithData: () => undoFn(...clonedArgs),
-            };
+export type UndoRedoState = {
+    past: AppState[];
+    present: AppState;
+    future: AppState[];
+};
 
-            past.push(action);
-            future.length = 0; 
-        },
+export type UndoAction = { type: 'UNDO' };
+export type RedoAction = { type: 'REDO' };
 
-        undo() {
-            const action = past.pop();
-            if (action) {
-                action.undoWithData();
-                future.unshift(action);
+type AppAction = PayloadAction<unknown>;
+
+export type UndoRedoActions = UndoAction | RedoAction | AppAction;
+
+export const canUndo = (state: UndoRedoState) => state.past.length > 0;
+export const canRedo = (state: UndoRedoState) => state.future.length > 0;
+
+export const undo = (): UndoAction => ({ type: 'UNDO' });
+export const redo = (): RedoAction => ({ type: 'REDO' });
+
+export function undoRedo(
+    reducer: Reducer<AppState, AppAction>,
+    initialState: AppState
+): Reducer<UndoRedoState, UndoRedoActions> {
+    const initialUndoRedoState: UndoRedoState = {
+        past: [],
+        present: initialState,
+        future: []
+    };
+
+    return function (state = initialUndoRedoState, action: UndoRedoActions): UndoRedoState {
+        switch (action.type) {
+            case 'UNDO': {
+                if (state.past.length === 0) return state;
+
+                const previous = state.past[state.past.length - 1];
+                const newPast = state.past.slice(0, -1);
+
+                return {
+                    past: newPast,
+                    present: previous,
+                    future: [state.present, ...state.future]
+                };
             }
-        },
 
-        redo() {
-            const action = future.shift();
-            if (action) {
-                action.doWithData();
-                past.push(action);
+            case 'REDO': {
+                if (state.future.length === 0) return state;
+
+                const next = state.future[0];
+                const newFuture = state.future.slice(1);
+
+                return {
+                    past: [...state.past, state.present],
+                    present: next,
+                    future: newFuture
+                };
             }
-        },
 
-        get canUndo() {
-            return past.length > 0;
-        },
+            default: {
+                const newPresent = reducer(state.present, action as AppAction);
 
-        get canRedo() {
-            return future.length > 0;
-        },
+                if (newPresent === state.present) {
+                    return state;
+                }
+
+                return {
+                    past: [...state.past, state.present],
+                    present: newPresent,
+                    future: []
+                };
+            }
+        }
     };
 }
-
-export const undoStack = createUndoStack();
