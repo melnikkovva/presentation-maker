@@ -21,6 +21,13 @@ export const canRedo = (state: UndoRedoState) => state.future.length > 0;
 export const undo = (): UndoAction => ({ type: 'UNDO' });
 export const redo = (): RedoAction => ({ type: 'REDO' });
 
+const restoreSelection = (newState: AppState, currentState: AppState): AppState => {
+    return {
+        ...newState,
+        selection: currentState.selection
+    };
+};
+
 export function undoRedo(
     reducer: Reducer<AppState, AppAction>,
     initialState: AppState
@@ -38,10 +45,12 @@ export function undoRedo(
 
                 const previous = state.past[state.past.length - 1];
                 const newPast = state.past.slice(0, -1);
+                
+                const newPresent = restoreSelection(previous, state.present);
 
                 return {
                     past: newPast,
-                    present: previous,
+                    present: newPresent,
                     future: [state.present, ...state.future]
                 };
             }
@@ -51,10 +60,12 @@ export function undoRedo(
 
                 const next = state.future[0];
                 const newFuture = state.future.slice(1);
+                
+                const newPresent = restoreSelection(next, state.present);
 
                 return {
                     past: [...state.past, state.present],
-                    present: next,
+                    present: newPresent,
                     future: newFuture
                 };
             }
@@ -62,10 +73,12 @@ export function undoRedo(
             default: {
                 const newPresent = reducer(state.present, action as AppAction);
 
-                if (newPresent === state.present) {
-                    return state;
+                if ((newPresent.title === state.present.title && newPresent.slides === state.present.slides && newPresent.objects === state.present.objects)) {
+                    return {...state,
+                        present: newPresent
+                    }
                 }
-
+                
                 return {
                     past: [...state.past, state.present],
                     present: newPresent,

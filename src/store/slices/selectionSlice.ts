@@ -41,24 +41,6 @@ export const selectionSlice = createSlice({
       return newSelection;
     },
 
-    toggleSelection: (state, action: PayloadAction<SelectionItem>) => {
-      const itemToToggle = action.payload;
-      let foundIndex = -1;
-      
-      for (let i = 0; i < state.length; i++) {
-        if (state[i].objectId === itemToToggle.objectId) {
-          foundIndex = i;
-          break;
-        }
-      }
-      
-      if (foundIndex !== -1) {
-        state.splice(foundIndex, 1);
-      } else {
-        state.push(itemToToggle);
-      }
-    },
-
     selectSlide: (_, action: PayloadAction<string>) => {
       return [{
         slideId: action.payload,
@@ -79,6 +61,5 @@ export const {
   setSelection,
   addToSelection,
   removeFromSelection,
-  toggleSelection
 } = selectionSlice.actions;
 export default selectionSlice.reducer;
