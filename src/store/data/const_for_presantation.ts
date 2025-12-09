@@ -47,3 +47,6 @@ export const DEFAULT_TEXT_FW = 'normal';
 export const DEFAULT_TEXT_DECORATION = 'none';
 export const DEFAULT_TEXT_ALIGN = 'left';
 export const DEFAULT_TEXT_COLOR = '#000000';
+
+export const ProjectID = "692dbe320031c967bff0";
+export const Endpoint = "https://nyc.cloud.appwrite.io/v1";

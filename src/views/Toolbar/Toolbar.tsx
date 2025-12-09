@@ -4,8 +4,13 @@ import { BackgroundControls } from './BackgroundControls';
 import { ExportControls } from './ExportControls';
 import { UndoRedo } from './UndoRedo';
 import styles from './Toolbar.module.css';
+import { Button } from '../../common/Button/Button';
 
-export function Toolbar() {
+interface ToolbarProps {
+  onLogout: () => void;
+}
+
+export function Toolbar({ onLogout }: ToolbarProps) {
     return (
         <div className={styles.toolbar}>
             <div className={styles.toolbarSection}>
@@ -30,6 +35,9 @@ export function Toolbar() {
             <div className={styles.toolbarSection}>
                 <UndoRedo />
             </div>
+            <Button onClick={onLogout} className={styles.logoutButton}>
+                Выйти
+            </Button>
         </div>
     );
 }
