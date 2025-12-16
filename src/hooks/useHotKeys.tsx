@@ -8,26 +8,17 @@ export function useHotKeys() {
     const canR = useAppSelector(canRedo);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const activeElement = document.activeElement;
-
-            const isInputFocused =
-                activeElement instanceof HTMLInputElement ||
-                activeElement instanceof HTMLTextAreaElement ||
-                activeElement?.getAttribute('contenteditable') === 'true';
-
-            if (isInputFocused) return;
-
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-                e.preventDefault();
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && (event.key === 'z' || event.key === 'Z' || event.key === 'я' || event.key === 'Я')){
+                event.preventDefault();
                 if (canU) {
                     dispatch(undo());
                 }
                 return;
             }
 
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-                e.preventDefault();
+            if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || event.key === 'Y' || event.key === 'н' || event.key === 'Н')) {
+                event.preventDefault();
                 if (canR) {
                     dispatch(redo());
                 }
@@ -36,5 +27,5 @@ export function useHotKeys() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [dispatch, canU, canR]);
+    }, [canU, canR]);
 }

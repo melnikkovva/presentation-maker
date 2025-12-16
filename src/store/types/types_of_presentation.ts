@@ -1,6 +1,7 @@
 export type Presentation = {
   id: string;
   title: string;
+  email: string;
 }
 
 export type Slides = {
@@ -28,7 +29,7 @@ export type Color = {
 }
 
 export type Picture = {
-  type: 'picture';
+  type: 'image';
   src: string;
 }
 
@@ -70,6 +71,8 @@ type BaseSlideObject = {
 }
 
 export type AppState = {
+  id: string;
+  email: string;
   title: string;
   slides: Slides;
   selection: Selection;

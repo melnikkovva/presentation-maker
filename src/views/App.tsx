@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
-import { PresentationTitle } from './PresentationTitle/PresentationTitle';
-import { Workspace } from './Workspace/Workspace';
-import { SlideList } from './SlideList/SlideList';
-import { Toolbar } from './Toolbar/Toolbar';
-import styles from './App.module.css';
-import { useHotKeys } from '../hooks/useHotKeys';
+import { Editor } from './Editor/Editor';
 import { LogForm } from './LogForm';
 import { RegisterForm } from './RegisterForm';
-import { getCurrentSession, loginOut} from './LogIn'; 
-import { Button } from '../common/Button/Button';
+import { loginOut, getUserEmail } from './LogIn';
+import { setUserEmail } from '../store/slices/emailSlice';
+import { useAppDispatch } from '../store/hooks';
 
 type AuthMode = 'login' | 'register';
 
@@ -16,58 +12,52 @@ export function App() {
   const [isLogged, setIsLogged] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [loading, setLoading] = useState(true);
+  
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const sessions = await getCurrentSession();
-      if (sessions && sessions.length > 0) {
-        setIsLogged(true);
+    const checkAuth = async () => {
+      try {
+        const userEmail = await getUserEmail();
+        if (userEmail) {
+          setIsLogged(true);
+          dispatch(setUserEmail(userEmail)); 
+        } else {
+          setIsLogged(false);
+        }
+      } catch (error) {
+        setIsLogged(false);
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    checkSession();
-  }, []);
+    
+    checkAuth();
+  }, [dispatch]);
 
-   const handleLogout = async () => {
-    await loginOut(setIsLogged);
+  const handleLogout = async () => {
+    await loginOut(() => setIsLogged(false));
+    dispatch(setUserEmail('')); 
   };
 
-  if (loading) {
-    return <div className="loading">Проверка сессии...</div>;
-  }
-
+  if (loading) return <div>Проверка сессии</div>;
+  
   if (!isLogged) {
-    return (
-      <>
-        {authMode === 'login' ? (
-          <LogForm
-            setIsLogged={setIsLogged}
-            onSwitchToRegister={() => setAuthMode('register')}
-          />
-        ) : (
-          <RegisterForm
-            setIsLogged={setIsLogged}
-            onSwitchToLogin={() => setAuthMode('login')}
-          />
-        )}
-      </>
+    return authMode === 'login' ? (
+      <LogForm 
+        setIsLogged={setIsLogged} 
+        onSwitchToRegister={() => setAuthMode('register')} 
+        onLoginSuccess={(email: string) => dispatch(setUserEmail(email))} 
+      />
+    ) : (
+      <RegisterForm 
+        setIsLogged={setIsLogged} 
+        onSwitchToLogin={() => setAuthMode('login')} 
+        onRegisterSuccess={(email: string) => dispatch(setUserEmail(email))}
+      />
     );
   }
 
-  function Editor() {
-  useHotKeys();
-
-  return (
-    <div className={styles.app}>
-      <PresentationTitle />
-        <Toolbar onLogout={handleLogout} />
-      <div className={styles.mainContainer}>
-        <SlideList />
-        <Workspace />
-      </div>
-    </div>
-  );
-}
-
-  return <Editor />;
+  return <Editor onLogout={handleLogout} />;
 }

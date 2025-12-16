@@ -17,7 +17,7 @@ export function SlideControls() {
     function handleRemoveSlide() {
         if (!currentSlideId) return;
 
-        const slideToRemove = slides.find(s => s.id === currentSlideId);
+        const slideToRemove = slides.find(slide => slide.id === currentSlideId);
         if (!slideToRemove) return;
 
         dispatch(removeSlide(currentSlideId)); 

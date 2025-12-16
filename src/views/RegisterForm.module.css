@@ -1,0 +1,124 @@
+
+.branding {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0b0b0b;
+  padding: 20px;
+  font-family: 'Orbitron', sans-serif;
+  color: white;
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 400px;
+  background-color: #121212;
+  padding: 32px;
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+}
+
+.loginHeader h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #00ff88;
+}
+
+.loginHeader p {
+  font-size: 14px;
+  color: #aaa;
+  margin: 0 0 24px;
+  font-weight: 400;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  font-size: 13px;
+  color: #00ff88;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #00ff88;
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.errorMessage {
+  background-color: rgba(255, 0, 100, 0.15);
+  color: #ff0066;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 0, 100, 0.3);
+}
+
+.loginButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #00ff88;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover:not(:disabled) {
+  background-color: #00e67a;
+}
+
+.loginButton:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+.signupLink {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.signupLink p {
+  font-size: 14px;
+  color: #888;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: #00ff88;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}

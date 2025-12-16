@@ -1,10 +1,11 @@
 import type { RootState } from '../store';
-import type { AppState } from '../types/types_of_presentation';
 
 export const selectTitle = (state: RootState) => state.present.title;
 export const selectSlidesState = (state: RootState) => state.present.slides;
 export const selectObjectsState = (state: RootState) => state.present.objects;
 export const selectSelection = (state: RootState) => state.present.selection;
+export const selectPresentationId = (state: RootState) => state.present.id;
+export const selectUserEmail = (state: RootState) => state.present.email;
 
 export const selectPresentationTitle = (state: RootState) => state.present.title;
 
@@ -49,12 +50,9 @@ export const isObjectSelected = (state: RootState, objectId: string) =>
 export const selectSelectedObjectIds = (state: RootState) => 
   state.present.selection.map(item => item.objectId);
 
-export const selectAppState = (state: RootState): AppState => ({
-  title: state.present.title,
-  slides: state.present.slides,
-  selection: state.present.selection,
-  objects: state.present.objects,
-});
-
-export const selectPastLength = (state: RootState) => state.past.length;
-export const selectFutureLength = (state: RootState) => state.future.length;
+export const selectSelectedSlideId = (state: RootState) => {
+  const slideSelection = state.present.selection.find(item => 
+    item.slideId && !item.objectId
+  );
+  return slideSelection?.slideId || null;
+};

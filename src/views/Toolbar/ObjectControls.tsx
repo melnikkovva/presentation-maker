@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addTextObject, addImageObject, removeObject, removeMultipleObjects } from '../../store/slices/objectsSlice';
-import { selectCurrentSlideId, selectSelectedObjectIds,selectSelectedObjects } from '../../store/selectors/presentationSelectors';
+import { selectCurrentSlideId, selectSelectedObjectIds, selectSelectedObjects } from '../../store/selectors/presentationSelectors';
 import { clearSelection } from '../../store/slices/selectionSlice';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Toolbar.module.css';
+import { uploadImageFromUrlToStorage } from '../../store/functions_for_DB';
 
 import addTextIcon from '../../assets/icons/add-text.png';
 import addImageIcon from '../../assets/icons/add-image.png';
@@ -63,13 +64,13 @@ export function ObjectControls() {
     const reader = new FileReader();
     
     reader.onload = (e) => {
-      const dataUrl = e.target ? e.target.result : undefined;
+      const dataUrl = e.target?.result;
       
       if (dataUrl && typeof dataUrl === 'string') {
         dispatch(addImageObject({ 
-            slideId: currentSlideId, 
-            src: dataUrl 
-        })); 
+          slideId: currentSlideId, 
+          src: dataUrl 
+        }));
       }
       
       setIsLoading(false);
@@ -77,6 +78,8 @@ export function ObjectControls() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      
+      setShowImageInput(false);
     };
 
     reader.onerror = () => {
@@ -91,20 +94,35 @@ export function ObjectControls() {
     reader.readAsDataURL(file);
   }
 
-  function handleAddImageFromUrl(): void {
+  async function handleAddImageFromUrl(): Promise<void> {
     if (!currentSlideId || !imageUrl.trim()) return;
     
-    dispatch(addImageObject({ 
+    setIsLoading(true);
+
+    try {
+      const storageUrl = await uploadImageFromUrlToStorage(imageUrl.trim());
+      
+      dispatch(addImageObject({ 
         slideId: currentSlideId, 
-        src: imageUrl.trim() 
-    })); 
-    
-    setImageUrl('');
-    setShowImageInput(false);
+        src: storageUrl 
+      })); 
+      
+      setImageUrl('');
+      setShowImageInput(false);
+    } catch (error) {
+      console.error('Ошибка при загрузке изображения по URL:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleImageUrlChange(value: string): void {
     setImageUrl(value);
+  }
+
+  function handleCloseImageInput(): void {
+    setShowImageInput(false);
+    setImageUrl('');
   }
 
   return (
@@ -131,31 +149,52 @@ export function ObjectControls() {
         />
         
         {showImageInput && (
-          <div className={styles.dropdownContent}>
-            <Button 
-                onClick={handleAddImageFromComputer}
-                className={styles.dropdownItem}
-                disabled={isLoading}
-            >
-                {isLoading ? 'Идет загрузка' : 'С компьютера'}
-            </Button>
-            
-            <div className={styles.urlInputContainer}>
-                <Input
+          <>
+            <div className={styles.overlay} onClick={handleCloseImageInput} />
+            <div className={styles.dropdownContent}>
+              <div className={styles.dropdownHeader}>
+                <h4>Добавить изображение</h4>
+                <button 
+                  className={styles.closeButton}
+                  onClick={handleCloseImageInput}
+                  aria-label="Закрыть"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className={styles.dropdownSection}>
+                <label className={styles.label}>Изображение по URL:</label>
+                <div className={styles.urlInputContainer}>
+                  <Input
                     value={imageUrl}
                     onChange={handleImageUrlChange}
                     placeholder="Введите URL изображения"
                     className={styles.urlInput}
-                />
-                <Button 
+                  />
+                  <Button 
                     onClick={handleAddImageFromUrl}
                     className={styles.submitButton}
                     disabled={!imageUrl.trim() || isLoading}
+                  >
+                    {isLoading ? 'Загрузка...' : 'Добавить'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className={styles.divider}>или</div>
+
+              <div className={styles.dropdownSection}>
+                <Button 
+                  onClick={handleAddImageFromComputer}
+                  className={styles.dropdownItem}
+                  disabled={isLoading}
                 >
-                    Добавить
+                  {isLoading ? 'Загрузка...' : 'Загрузить с компьютера'}
                 </Button>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
       

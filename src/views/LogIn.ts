@@ -4,6 +4,7 @@ import { Endpoint, ProjectID } from "../store/data/const_for_presantation";
 export const client = new Client()
                         .setProject(ProjectID)
                         .setEndpoint(Endpoint);
+                        
 const account = new Account(client);
 
 async function createAccount(email: string, password: string, name: string) {
@@ -16,17 +17,34 @@ async function createAccount(email: string, password: string, name: string) {
   console.log(result);
 }
 
+export async function getUserEmail() {
+  try {
+    const user = await account.get();
+    return user.email;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 async function getAccountStatus() {
   const user = await account.get();
   return user.email;
 }
 
-async function loginAccount(email: string, password: string, setIsLoged: React.Dispatch<React.SetStateAction<boolean>>) {
+async function loginAccount(email: string, password: string) {
   await account.createEmailPasswordSession({
     email,
     password,
   });
-  setIsLoged(true);
+  
+  try {
+    const user = await account.get();
+    return user.email;
+  } catch (error) {
+    console.log(error);
+    return email; 
+  }
 }
 
 async function loginOut(setIsLogged: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -43,7 +61,7 @@ async function loginOut(setIsLogged: React.Dispatch<React.SetStateAction<boolean
 
     setIsLogged(false);
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 

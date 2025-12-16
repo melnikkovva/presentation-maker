@@ -1,154 +1,242 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { changeSlideBackground } from '../../store/slices/slidesSlice'; 
+import { changeSlideBackground } from '../../store/slices/slidesSlice';
 import { selectCurrentSlideId } from '../../store/selectors/presentationSelectors';
+import type { Color, Picture } from '../../store/types/types_of_presentation';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
-import changeBackground from '../../assets/icons/change.png';
 import styles from './Background.module.css';
+import backgroundIcon from '../../assets/icons/change.png';
 
 export function BackgroundControls() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [currentColor, setCurrentColor] = useState('#ffffff');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'color' | 'image'>('color');
+    const [selectedColor, setSelectedColor] = useState('#ffffff');
     const [imageUrl, setImageUrl] = useState('');
-    const [selectedTab, setSelectedTab] = useState<'color' | 'image'>('color');
+    const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    
+
     const currentSlideId = useAppSelector(selectCurrentSlideId);
     const dispatch = useAppDispatch();
 
-    function handleOpen(): void {
-        setIsOpen(true);
+    function openMenu(): void {
+        setIsMenuOpen(true);
     }
 
-    function handleClose(): void {
-        setIsOpen(false);
+    function closeMenu(): void {
+        setIsMenuOpen(false);
+        setSelectedColor('#ffffff');
+        setImageUrl('');
+        setActiveTab('color');
     }
 
-    function handleColorChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const color = event.target.value;
-        setCurrentColor(color);
-            
-        if (currentSlideId) {
-            dispatch(changeSlideBackground({ 
-                slideId: currentSlideId, 
-                background: { type: 'color', color: color } 
-            }));
+    function handleColorChange(event: React.ChangeEvent<HTMLInputElement>): void {
+        setSelectedColor(event.target.value);
+    }
+
+    function applyColor(): void {
+        if (!currentSlideId) {
+            console.log('Нет активного слайда');
+            return;
         }
+
+        const colorBackground: Color = {
+            type: 'color',
+            color: selectedColor
+        };
+
+        dispatch(changeSlideBackground({
+            slideId: currentSlideId,
+            background: colorBackground
+        }));
+
+        closeMenu();
     }
 
-    function handleUrlApply() {
-        if (imageUrl.trim() && currentSlideId) {
-            dispatch(changeSlideBackground({ 
-                slideId: currentSlideId, 
-                background: { type: 'picture', src: imageUrl.trim() } 
-            }));
-            setImageUrl('');
-        }
-    }
-
-    function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>): void {
         const file = event.target.files?.[0];
-        if (file && currentSlideId) {
-            const imageUrl = URL.createObjectURL(file);
-            dispatch(changeSlideBackground({ 
-                slideId: currentSlideId, 
-                background: { type: 'picture', src: imageUrl } 
-            }));
+        
+        if (!file || !currentSlideId) return;
+
+        if (!file.type.startsWith('image/')) {
+            console.log('Выберите изображение');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const dataUrl = e.target?.result;
+            
+            if (dataUrl && typeof dataUrl === 'string') {
+                const pictureBackground: Picture = {
+                    type: 'image',
+                    src: dataUrl
+                };
+
+                dispatch(changeSlideBackground({
+                    slideId: currentSlideId,
+                    background: pictureBackground
+                }));
+            }
+            
+            setIsLoading(false);
+            closeMenu();
+            
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
-        }
+        };
+
+        reader.onerror = () => {
+            console.error('Ошибка при чтении файла');
+            setIsLoading(false);
+            
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        };
+
+        reader.readAsDataURL(file);
     }
 
-    function handleFileSelect() {
+    function applyImageFromUrl(): void {
+        if (!currentSlideId || !imageUrl.trim()) {
+            console.log('Введите URL изображения');
+            return;
+        }
+
+        const pictureBackground: Picture = {
+            type: 'image',
+            src: imageUrl.trim()
+        };
+
+        dispatch(changeSlideBackground({
+            slideId: currentSlideId,
+            background: pictureBackground
+        }));
+
+        closeMenu();
+    }
+
+    function handleImageFromComputer(): void {
         fileInputRef.current?.click();
+    }
+
+    if (!isMenuOpen) {
+        return (
+            <div className={styles.buttonGroup}>
+                <Button
+                    onClick={openMenu}
+                    icon={backgroundIcon}
+                />
+            </div>
+        );
     }
 
     return (
         <>
-            <Button 
-                onClick={handleOpen}
-                icon={changeBackground}
-            />
+            <div className={styles.overlay} onClick={closeMenu} />
             
-            {isOpen && (
-                <div className={styles.overlay} onClick={handleClose}>
-                    <div className={styles.menu} >
-                        <div className={styles.header}>
-                            <h3>Фон слайда</h3>
-                            <button className={styles.closeButton} onClick={handleClose}>×</button>
-                        </div>
-                
-                        <div className={styles.tabs}>
-                            <Button 
-                                onClick={() => setSelectedTab('color')}
-                                className={`${styles.tab} ${selectedTab === 'color' ? styles.activeTab : ''}`}
-                            >
-                            Цвет
-                            </Button>
-                            <Button 
-                                onClick={() => setSelectedTab('image')}
-                                className={`${styles.tab} ${selectedTab === 'image' ? styles.activeTab : ''}`}
-                            >
-                                Изображение
-                            </Button>
-                        </div>
-
-                        <div className={styles.content}>
-                            {selectedTab === 'color' && (
-                                <div className={styles.section}>
-                                <label className={styles.label}>Цвет фона:</label>
-                                <input
-                                    type="color"
-                                    value={currentColor}
-                                    onChange={handleColorChange}
-                                />
-                        
-                                </div>
-                            )}
-
-                            {selectedTab === 'image' && (
-                                <div className={styles.section}>
-                                    <div className={styles.urlSection}>
-                                        <label className={styles.label}>Ссылка на изображение:</label>
-                                        <Input
-                                            value={imageUrl}
-                                            onChange={setImageUrl}
-                                            placeholder="https://example.com/image.jpg"
-                                            className={styles.urlInput}
-                                        />
-                                        <Button 
-                                            onClick={handleUrlApply}
-                                            disabled={!imageUrl.trim() || !currentSlideId}
-                                        >
-                                        Применить
-                                        </Button>
-                                    </div>
-                            
-                                    <div className={styles.divider}>или</div>
-                            
-                                    <div className={styles.fileSection}>
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleFileUpload}
-                                            className={styles.hiddenFileInput}
-                                        />
-                                        <Button 
-                                            onClick={handleFileSelect}
-                                            disabled={!currentSlideId}
-                                        >
-                                        Выбрать файл
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+            <div className={styles.menu}>
+                <div className={styles.header}>
+                    <h3>Настройка фона</h3>
+                    <button 
+                        className={styles.closeButton}
+                        onClick={closeMenu}
+                        aria-label="Закрыть"
+                    >
+                        ×
+                    </button>
                 </div>
-            )}
+
+                <div className={styles.tabs}>
+                    <button
+                        className={`${styles.tab} ${activeTab === 'color' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('color')}
+                    >
+                        Цвет
+                    </button>
+                    <button
+                        className={`${styles.tab} ${activeTab === 'image' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('image')}
+                    >
+                        Изображение
+                    </button>
+                </div>
+
+                <div className={styles.content}>
+                    {activeTab === 'color' ? (
+                        <div className={styles.section}>
+                            <label className={styles.label}>Выберите цвет:</label>
+                            <input
+                                type="color"
+                                value={selectedColor}
+                                onChange={handleColorChange}
+                                className={styles.colorPicker}
+                            />
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                                <Button
+                                    onClick={applyColor}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Загрузка...' : 'Применить цвет'}
+                                </Button>
+                                <Button
+                                    onClick={closeMenu}
+                                >
+                                    Отмена
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={styles.section}>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                className={styles.hiddenFileInput}
+                            />
+                            
+                            <div className={styles.urlSection}>
+                                <label className={styles.label}>Изображение по URL:</label>
+                                <Input
+                                    value={imageUrl}
+                                    onChange={(value) => setImageUrl(value)}
+                                    placeholder="Введите URL изображения"
+                                    className={styles.urlInput}
+                                />
+                                <Button
+                                    onClick={applyImageFromUrl}
+                                    disabled={!imageUrl.trim() || isLoading}
+                                >
+                                    {isLoading ? 'Загрузка...' : 'Применить из URL'}
+                                </Button>
+                            </div>
+
+                            <div className={styles.divider}>или</div>
+
+                            <div className={styles.fileSection}>
+                                <Button
+                                    onClick={handleImageFromComputer}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Загрузка...' : 'Загрузить с компьютера'}
+                                </Button>
+                            </div>
+
+                            <Button
+                                onClick={closeMenu}
+                            >
+                                Отмена
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </>
     );
 }

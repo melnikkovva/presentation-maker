@@ -50,3 +50,6 @@ export const DEFAULT_TEXT_COLOR = '#000000';
 
 export const ProjectID = "692dbe320031c967bff0";
 export const Endpoint = "https://nyc.cloud.appwrite.io/v1";
+export const DatabaseID = "69387db6001ee21b8f1e";
+export const TabelID = "presentations";
+export const StoreID = "69387f7b00394722115a";

@@ -2,7 +2,6 @@ import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { selectSlideById, selectObjectsBySlideId, selectSelectedObjects } from "../../store/selectors/presentationSelectors";
 import { setSelection, addToSelection, removeFromSelection } from "../../store/slices/selectionSlice";
 import { updateObjectPosition, updateObjectsPositions } from "../../store/slices/objectsSlice";
-import styles from "./SlideRender.module.css";
 import type { SelectionItem } from "../../store/types/types_of_presentation";
 import { SlideObject } from "./SlideObject";
 import { useMemo } from "react";
@@ -14,7 +13,9 @@ type SlideRenderProps = {
 
 export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
   const dispatch = useAppDispatch();
-  const slide = useAppSelector(selectSlideById(slideId || ""));
+  const slide = useAppSelector(
+    slideId ? selectSlideById(slideId) : () => null
+  );
   const objects = useAppSelector(selectObjectsBySlideId(slideId || ""));
   const selectionObjects = useAppSelector(selectSelectedObjects);
 
@@ -134,7 +135,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
           />
         ))
       ) : (
-        <div className={styles.emptySlide}>Пустой слайд</div>
+        <div></div>
       )}
     </div>
   );
