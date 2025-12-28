@@ -10,20 +10,10 @@ export const emailSlice = createSlice({
     setUserEmail: (_, action: PayloadAction<string>) => {
       return action.payload;
     },
-
-    updateEmailFromSession: () => {
-      try {
-        const session = JSON.parse(localStorage.getItem('session') || '{}');
-        return session.email || '';
-      } catch {
-        return '';
-      }
-    },
   },
 });
 
 export const { 
-    setUserEmail,
-    updateEmailFromSession,
+  setUserEmail,
 } = emailSlice.actions;
 export default emailSlice.reducer;

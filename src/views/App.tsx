@@ -1,63 +1,52 @@
-import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { LoginPage } from './userPages/LoginPage';
+import { RegisterPage } from './userPages/RegisterPage';
+import { HomePage } from './userPages/HomePage'; 
 import { Editor } from './Editor/Editor';
-import { LogForm } from './LogForm';
-import { RegisterForm } from './RegisterForm';
-import { loginOut, getUserEmail } from './LogIn';
-import { setUserEmail } from '../store/slices/emailSlice';
-import { useAppDispatch } from '../store/hooks';
-
-type AuthMode = 'login' | 'register';
+import { Player } from './Player/Player';
+import { Gallery } from './Gallery/Gallery';
+import { getUserEmail } from './LogIn';
+import { ROUTES } from '../store/data/const_for_presantation';
 
 export function App() {
-  const [isLogged, setIsLogged] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [loading, setLoading] = useState(true);
-  
-  const dispatch = useAppDispatch();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const userEmail = await getUserEmail();
-        if (userEmail) {
-          setIsLogged(true);
-          dispatch(setUserEmail(userEmail)); 
-        } else {
-          setIsLogged(false);
-        }
-      } catch (error) {
-        setIsLogged(false);
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
+      const email = await getUserEmail();
+      setIsAuthenticated(Boolean(email));
     };
-    
     checkAuth();
-  }, [dispatch]);
+  }, []);
 
-  const handleLogout = async () => {
-    await loginOut(() => setIsLogged(false));
-    dispatch(setUserEmail('')); 
-  };
-
-  if (loading) return <div>Проверка сессии</div>;
-  
-  if (!isLogged) {
-    return authMode === 'login' ? (
-      <LogForm 
-        setIsLogged={setIsLogged} 
-        onSwitchToRegister={() => setAuthMode('register')} 
-        onLoginSuccess={(email: string) => dispatch(setUserEmail(email))} 
-      />
-    ) : (
-      <RegisterForm 
-        setIsLogged={setIsLogged} 
-        onSwitchToLogin={() => setAuthMode('login')} 
-        onRegisterSuccess={(email: string) => dispatch(setUserEmail(email))}
-      />
-    );
+  if (isAuthenticated === null) {
+    return <div>Загрузка...</div>;
   }
 
-  return <Editor onLogout={handleLogout} />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        {isAuthenticated ? (
+          <>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route path={ROUTES.EDITOR} element={<Editor onLogout={() => setIsAuthenticated(false)} />} />
+            <Route path={ROUTES.PLAYER} element={<Player />} />
+            <Route path={ROUTES.GALLERY} element={<Gallery />} />
+
+            <Route path={ROUTES.ROOT} element={<Navigate to={ROUTES.HOME} replace={false} />} />
+            <Route path="*" element={<Navigate to={ROUTES.HOME} replace={false} />} />
+          </>
+        ) : (
+          <>
+            <Route path={ROUTES.LOGIN} element={<LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />} />
+            <Route path={ROUTES.REGISTER} element={<RegisterPage onRegisterSuccess={() => setIsAuthenticated(true)} />} />
+
+            <Route path={ROUTES.ROOT} element={<Navigate to={ROUTES.LOGIN} replace={false} />} />
+            <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace={false} />} />
+          </>
+        )}
+      </Routes>
+    </BrowserRouter>
+  );
 }

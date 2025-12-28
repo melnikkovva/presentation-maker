@@ -46,7 +46,6 @@ export const objectsSlice = createSlice({
   name: 'objects',
   initialState,
   reducers: {
-    
     removeObject: (state, action: PayloadAction<string>) => {
       const objectId = action.payload;
       state.objects = state.objects.filter(obj => obj.id !== objectId);
@@ -62,6 +61,24 @@ export const objectsSlice = createSlice({
       const { slideId, src } = action.payload;
       const imageObject = createDefaultImageObject(slideId, src);
       state.objects.push(imageObject);
+    },
+
+    addImageObjectWithId: (
+      state,
+      action: PayloadAction<{ id: string; slideId: string; src: string }>
+    ) => {
+      const { id, slideId, src } = action.payload;
+
+      state.objects.push({
+        type: 'image',
+        id,
+        slideId,
+        x: DEFAULT_POSITIONS_X,
+        y: DEFAULT_POSITIONS_Y,
+        w: DEFAULT_IMAGE_WIDTH,
+        h: DEFAULT_IMAGE_HEIGHT,
+        src,
+      });
     },
     
     changeObjectPosition: (state, action: PayloadAction<{ objectId: string; x: number; y: number }>) => {
@@ -110,8 +127,29 @@ export const objectsSlice = createSlice({
       const objectIdsToRemove = action.payload;
       state.objects = state.objects.filter(obj => !objectIdsToRemove.includes(obj.id));
     },
+    
+    setObjects: (state, action: PayloadAction<any[]>) => {
+      state.objects = action.payload;
+    },
+
+    updateImageSrc: (
+      state,
+      action: PayloadAction<{ id: string; src: string }>
+    ) => {
+      const obj = state.objects.find(o => o.id === action.payload.id);
+      if (obj && obj.type === 'image') {
+        obj.src = action.payload.src;
+      }
+    },
+    
+    clearObjects: (state) => {
+      state.objects = [];
+    },
+    
+    resetObjects: (state) => {
+      state.objects = [];
+    }
   },
-  
 });
 
 export const { 
@@ -123,6 +161,11 @@ export const {
   removeObjectsBySlideId,
   updateObjectPosition,
   updateObjectsPositions,
-  removeMultipleObjects
+  removeMultipleObjects,
+  updateImageSrc,
+  setObjects,
+  clearObjects,
+  addImageObjectWithId,
+  resetObjects
 } = objectsSlice.actions;
 export default objectsSlice.reducer;

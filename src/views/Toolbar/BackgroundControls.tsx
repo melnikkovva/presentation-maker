@@ -7,6 +7,7 @@ import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Background.module.css';
 import backgroundIcon from '../../assets/icons/change.png';
+import { uploadImageToStorage, uploadImageFromUrlToStorage } from '../../store/functions_for_DB';
 
 export function BackgroundControls() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,70 +56,58 @@ export function BackgroundControls() {
 
     function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>): void {
         const file = event.target.files?.[0];
-        
         if (!file || !currentSlideId) return;
-
-        if (!file.type.startsWith('image/')) {
-            console.log('Выберите изображение');
-            return;
-        }
 
         setIsLoading(true);
 
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            const dataUrl = e.target?.result;
-            
-            if (dataUrl && typeof dataUrl === 'string') {
+        uploadImageToStorage(file)
+            .then(storageUrl => {
                 const pictureBackground: Picture = {
                     type: 'image',
-                    src: dataUrl
+                    src: storageUrl
                 };
 
                 dispatch(changeSlideBackground({
                     slideId: currentSlideId,
                     background: pictureBackground
                 }));
-            }
-            
-            setIsLoading(false);
-            closeMenu();
-            
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        };
-
-        reader.onerror = () => {
-            console.error('Ошибка при чтении файла');
-            setIsLoading(false);
-            
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        };
-
-        reader.readAsDataURL(file);
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки изображения:', error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+                closeMenu();
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            });
     }
 
-    function applyImageFromUrl(): void {
+    async function applyImageFromUrl(): Promise<void> {
         if (!currentSlideId || !imageUrl.trim()) {
             console.log('Введите URL изображения');
             return;
         }
 
-        const pictureBackground: Picture = {
-            type: 'image',
-            src: imageUrl.trim()
-        };
+        setIsLoading(true);
 
-        dispatch(changeSlideBackground({
-            slideId: currentSlideId,
-            background: pictureBackground
-        }));
+        try {
+            const storageUrl = await uploadImageFromUrlToStorage(imageUrl.trim());
+            
+            const pictureBackground: Picture = {
+                type: 'image',
+                src: storageUrl
+            };
 
-        closeMenu();
+            dispatch(changeSlideBackground({
+                slideId: currentSlideId,
+                background: pictureBackground
+            }));
+        } catch (error) {
+            console.error('Ошибка загрузки изображения по URL:', error);
+        } finally {
+            setIsLoading(false);
+            closeMenu();
+        }
     }
 
     function handleImageFromComputer(): void {

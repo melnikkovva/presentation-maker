@@ -1,0 +1,43 @@
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getPresentationDB, saveToDB } from '../functions_for_DB';
+import { validatePresentation } from '../ajv/presentationSchema';
+import { setLoadedPresentation } from '../slices/presentationSlice';
+import { setPresentationId } from '../slices/idSlice';
+import type { Presentation } from '../types/types_of_presentation';
+
+export const loadPresentation = createAsyncThunk(
+  'presentation/loadPresentation',
+  async (id: string, { dispatch, rejectWithValue }) => {
+    try {
+      const row = await getPresentationDB(id);
+      if (!row?.json) {
+        return rejectWithValue('Presentation not found');
+      }
+
+      const data = JSON.parse(row.json);
+      if (!validatePresentation(data)) {
+        return rejectWithValue('Invalid presentation schema');
+      }
+
+      dispatch(setLoadedPresentation(data));
+      dispatch(setPresentationId(id));
+      return data;
+    } catch (error) {
+      console.error('Failed to load presentation:', error);
+      return rejectWithValue('Load error');
+    }
+  }
+);
+
+export const savePresentation = createAsyncThunk(
+  'presentation/savePresentation',
+  async (presentation: Presentation, { rejectWithValue }) => {
+    try {
+      await saveToDB(presentation, presentation.id);
+      return presentation;
+    } catch (error) {
+      console.error('Failed to save presentation:', error);
+      return rejectWithValue('Save error');
+    }
+  }
+);

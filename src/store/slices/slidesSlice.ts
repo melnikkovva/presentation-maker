@@ -58,6 +58,28 @@ export const slidesSlice = createSlice({
     
     setCurrentSlide: (state, action: PayloadAction<string>) => {
       state.currentSlideId = action.payload;
+    },
+    
+    setSlides: (state, action: PayloadAction<Slide[]>) => {
+      state.slides = action.payload;
+      if (action.payload.length > 0 && !state.currentSlideId) {
+        state.currentSlideId = action.payload[0].id;
+      }
+    },
+    
+    clearSlides: (state) => {
+      state.slides = [];
+      state.currentSlideId = null;
+    },
+    
+    resetSlides: (state) => {
+      const newSlide: Slide = {
+        id: generateId(),
+        background: { type: 'color', color: '#ffffff' },
+        objectIds: []
+      };
+      state.slides = [newSlide];
+      state.currentSlideId = newSlide.id;
     }
   },
 });
@@ -68,6 +90,9 @@ export const {
   changeSlideBackground, 
   reorderSlides,
   removeObjectIdFromSlide,
-  setCurrentSlide
+  setCurrentSlide,
+  setSlides,
+  clearSlides,
+  resetSlides
 } = slidesSlice.actions;
 export default slidesSlice.reducer;

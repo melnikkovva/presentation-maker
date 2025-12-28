@@ -2,7 +2,12 @@ export type Presentation = {
   id: string;
   title: string;
   email: string;
-}
+  slides: Array<{
+    id: string;
+    background: Background;
+    elements: StoredElement[]; 
+  }>;
+};
 
 export type Slides = {
   slides: Array<Slide>;
@@ -61,6 +66,10 @@ export type ImageObject = BaseSlideObject & {
   src: string;
   slideId: string; 
 }
+
+export type StoredTextElement = Omit<TextObject, 'slideId'>;
+export type StoredImageElement = Omit<ImageObject, 'slideId'>;
+export type StoredElement = StoredTextElement | StoredImageElement;
 
 type BaseSlideObject = {
   id: string;

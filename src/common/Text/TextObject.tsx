@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { changeObjectPosition, changeObjectSize } from '../../store/slices/objectsSlice';
 import { selectTextObjectById, selectSelectedObjects, isObjectSelected } from '../../store/selectors/presentationSelectors';
-import { DEFAULT_PADDING_TEXT_FIELD, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PREVIEW_SCALE } from '../../store/data/const_for_presantation';
+import { DEFAULT_PADDING_TEXT_FIELD, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PREVIEW_SCALE, PLAYER_RATIO } from '../../store/data/const_for_presantation';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
 import styles from './TextObject.module.css';
@@ -10,6 +10,7 @@ import styles from './TextObject.module.css';
 type TextObjectProps = {
   objectId: string;
   isPreview: boolean;
+  isPlayer: boolean;
   isDragging: boolean;
   isSelected: boolean;
   isPrimarySelected: boolean;
@@ -23,9 +24,11 @@ export function TextObject(props: TextObjectProps) {
   const isSelected = useAppSelector(state => isObjectSelected(state, props.objectId));
   const dispatch = useAppDispatch();
 
-  const scale = props.isPreview ? PREVIEW_SCALE : 1;
-  const isInteractive = !props.isPreview;
-
+  let scale = props.isPreview ? PREVIEW_SCALE : 1;
+  if (props.isPlayer) {
+    scale = PLAYER_RATIO;
+  }
+  const isInteractive = !(props.isPreview || props.isPlayer);
   const hasMultipleSelection = selectedObjects.length > 1;
   const isPartOfMultipleSelection = isSelected && hasMultipleSelection;
 

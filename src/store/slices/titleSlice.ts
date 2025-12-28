@@ -9,9 +9,19 @@ export const titleSlice = createSlice({
   reducers: {
     renamePresentation: (state, action: PayloadAction<string>) => {
       return state = action.payload;
+    },
+    setTitle: (_, action: PayloadAction<string>) => {
+      return action.payload;
+    },
+    resetTitle: () => {
+      return initialState;
     }
   },
 });
 
-export const { renamePresentation } = titleSlice.actions;
+export const { 
+  renamePresentation, 
+  setTitle, 
+  resetTitle 
+} = titleSlice.actions;
 export default titleSlice.reducer;

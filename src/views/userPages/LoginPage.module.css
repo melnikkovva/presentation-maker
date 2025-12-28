@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
 
 .branding {
   display: flex;
@@ -6,7 +7,7 @@
   min-height: 100vh;
   background-color: #0b0b0b;
   padding: 20px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   color: white;
 }
 
@@ -52,15 +53,9 @@
   border: 1px solid #333;
   border-radius: 4px;
   color: white;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-size: 15px;
   box-sizing: border-box;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #00ff88;
-  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
 }
 
 .errorMessage {
@@ -85,16 +80,6 @@
   font-weight: 600;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.loginButton:hover:not(:disabled) {
-  background-color: #00e67a;
-}
-
-.loginButton:disabled {
-  background-color: #444;
-  cursor: not-allowed;
 }
 
 .signupLink {
@@ -117,8 +102,4 @@
   cursor: pointer;
   padding: 0;
   text-decoration: none;
-}
-
-.linkButton:hover {
-  text-decoration: underline;
 }

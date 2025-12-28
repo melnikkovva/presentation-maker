@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { changeObjectPosition, changeObjectSize } from '../../store/slices/objectsSlice';
 import { selectImageObjectById, selectSelectedObjects, isObjectSelected } from '../../store/selectors/presentationSelectors';
-import { PREVIEW_SCALE, MIN_DIV_HEIGHT, MIN_DIV_WIDTH } from '../../store/data/const_for_presantation';
+import { PREVIEW_SCALE, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PLAYER_RATIO } from '../../store/data/const_for_presantation';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
 import styles from './ImageObject.module.css';
@@ -10,6 +10,7 @@ import styles from './ImageObject.module.css';
 type ImageObjectProps = {
   objectId: string;
   isPreview: boolean;
+  isPlayer: boolean;
   isDragging: boolean;
   isSelected: boolean;
   isPrimarySelected: boolean;
@@ -23,8 +24,11 @@ export function ImageObject(props: ImageObjectProps) {
   const isSelected = useAppSelector(state => isObjectSelected(state, props.objectId));
   const dispatch = useAppDispatch();
 
-  const scale = props.isPreview ? PREVIEW_SCALE : 1;
-  const isInteractive = !props.isPreview;
+  let scale = props.isPreview ? PREVIEW_SCALE : 1;
+  if (props.isPlayer) {
+    scale = PLAYER_RATIO;
+  }
+  const isInteractive = !(props.isPreview || props.isPlayer);
   
   const hasMultipleSelection = selectedObjects.length > 1;
   const isPartOfMultipleSelection = isSelected && hasMultipleSelection;

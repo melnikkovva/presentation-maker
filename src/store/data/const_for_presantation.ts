@@ -31,6 +31,9 @@ export const DEFAULT_POSITIONS = {
 
 export const SLIDE_WIDTH = 1000; 
 export const SLIDE_HEIGHT = 550; 
+export const PLAYER_RATIO = 1.4
+export const SLIDE_WIDTH_PLAYER = SLIDE_WIDTH * PLAYER_RATIO;
+export const SLIDE_HEIGHT_PLAYER = SLIDE_HEIGHT * PLAYER_RATIO;
 export const PREVIEW_SCALE = 0.2; 
 export const DEFAULT_PADDING_TEXT_FIELD = 8;
 export const MIN_DIV_WIDTH = 20;
@@ -53,3 +56,13 @@ export const Endpoint = "https://nyc.cloud.appwrite.io/v1";
 export const DatabaseID = "69387db6001ee21b8f1e";
 export const TabelID = "presentations";
 export const StoreID = "69387f7b00394722115a";
+
+export const ROUTES = {
+  HOME: '/home',
+  EDITOR: '/editor',
+  PLAYER: '/player',
+  GALLERY: '/gallery',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  ROOT: '/'
+} as const;

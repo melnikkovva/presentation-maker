@@ -1,40 +1,56 @@
 import { useState } from 'react';
-import { createAccount } from './LogIn'; 
-import styles from './RegisterForm.module.css'
+import { useNavigate, Link } from 'react-router-dom';
+import { createAccount } from '../LogIn';
+import { setUserEmail } from '../../store/slices/emailSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { ROUTES } from '../../store/data/const_for_presantation';
+import styles from './RegisterPage.module.css';
 
-type RegisterFormProps = {
-  setIsLogged: (logged: boolean) => void;
-  onSwitchToLogin: () => void;
-  onRegisterSuccess?: (email: string) => void; 
+type RegisterPageProps = {
+  onRegisterSuccess: () => void;
 }
 
-export function RegisterForm(props: RegisterFormProps) {
+export function RegisterPage(props: RegisterPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    await createAccount(email, password, name);
-    props.setIsLogged(true);
-    
-    if (props.onRegisterSuccess) {
-      props.onRegisterSuccess(email);
+    try {
+      await createAccount(email, password, name);
+      dispatch(setUserEmail(email));
+      props.onRegisterSuccess(); 
+      navigate('/editor'); 
+    } catch (error) {
+      setError('Ошибка при создании аккаунта');
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
-   return (
+  return (
     <div className={styles.branding}>
       <div className={styles.loginForm}>
         <div className={styles.loginHeader}>
           <h2>Создайте аккаунт</h2>
           <p>Заполните форму, чтобы начать работу</p>
         </div>
+
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -92,13 +108,9 @@ export function RegisterForm(props: RegisterFormProps) {
         <div className={styles.signupLink}>
           <p>
             Уже есть аккаунт?{' '}
-            <button 
-              type="button" 
-              onClick={props.onSwitchToLogin} 
-              className={styles.linkButton}
-            >
+            <Link to={ROUTES.LOGIN} className={styles.linkButton}>
               Войти
-            </button>
+            </Link>
           </p>
         </div>
       </div>

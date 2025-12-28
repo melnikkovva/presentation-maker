@@ -4,14 +4,16 @@ import { setSelection, addToSelection, removeFromSelection } from "../../store/s
 import { updateObjectPosition, updateObjectsPositions } from "../../store/slices/objectsSlice";
 import type { SelectionItem } from "../../store/types/types_of_presentation";
 import { SlideObject } from "./SlideObject";
+import { PLAYER_RATIO, PREVIEW_SCALE } from "../../store/data/const_for_presantation";
 import { useMemo } from "react";
 
 type SlideRenderProps = {
   slideId: string | null;
   isPreview?: boolean;
+  isPlayer?: boolean;
 };
 
-export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
+export function SlideRender({ slideId, isPreview = false, isPlayer = false }: SlideRenderProps) {
   const dispatch = useAppDispatch();
   const slide = useAppSelector(
     slideId ? selectSlideById(slideId) : () => null
@@ -29,6 +31,11 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
       .filter((obj) => selectedObjectIds.includes(obj.id))
       .map((obj) => ({ id: obj.id, x: obj.x, y: obj.y }));
   }, [objects, selectedObjectIds]);
+
+  let scale = isPreview ? PREVIEW_SCALE : 1;
+  if (isPlayer) {
+  scale = PLAYER_RATIO;
+  }
 
   const handleSelectionChange = (
     objectId: string,
@@ -65,15 +72,15 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
         const draggedObj = objects.find((o) => o.id === draggedObjectId);
         if (!draggedObj) return;
 
-        const deltaX = finalX - draggedObj.x;
-        const deltaY = finalY - draggedObj.y;
+        const deltaX = (finalX - draggedObj.x) * scale;
+        const deltaY = (finalY - draggedObj.y) * scale;
 
         const updates = selectedObjectIds.map((id) => {
           const obj = objects.find((o) => o.id === id)!;
           return {
             objectId: id,
-            x: obj.x + deltaX,
-            y: obj.y + deltaY,
+            x: (obj.x + deltaX) * scale,
+            y: (obj.y + deltaY) * scale,
           };
         });
 
@@ -115,7 +122,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
     position: "relative",
     width: "100%",
     height: "100%",
-    pointerEvents: isPreview ? "none" : "auto",
+    pointerEvents: (isPreview || isPlayer) ? "none" : "auto",
   };
 
   return (
@@ -127,6 +134,7 @@ export function SlideRender({ slideId, isPreview = false }: SlideRenderProps) {
             object={object}
             slideId={slideId || ""}
             isPreview={isPreview}
+            isPlayer={isPlayer}
             selectedObjectIds={selectedObjectIds}
             selectionObjects={selectionObjects}
             selectedObjectsWithPositions={selectedObjectsWithPositions}

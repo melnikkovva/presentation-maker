@@ -1,39 +1,54 @@
 import { useState } from 'react';
-import { loginAccount } from './LogIn';
-import styles from './LogForm.module.css' 
+import { useNavigate, Link } from 'react-router-dom';
+import { loginAccount } from '../LogIn';
+import { setUserEmail } from '../../store/slices/emailSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { ROUTES } from '../../store/data/const_for_presantation';
+import styles from './LoginPage.module.css';
 
-type LogFormProps = {
-  setIsLogged: React.Dispatch<React.SetStateAction<boolean>>;
-  onSwitchToRegister: () => void;
-  onLoginSuccess?: (email: string) => void; 
+type LoginPageProps = {
+  onLoginSuccess: () => void;
 }
 
-export function LogForm(props: LogFormProps) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+export function LoginPage(props: LoginPageProps) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-        setIsLoading(true);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-        const userEmail = await loginAccount(email, password);
-        props.setIsLogged(true);
-        
-        if (props.onLoginSuccess) {
-            props.onLoginSuccess(userEmail || email);
-        }
-        
-        setIsLoading(false);
-    };
+    try {
+      const userEmail = await loginAccount(email, password);
+      dispatch(setUserEmail(userEmail || email));
+      props.onLoginSuccess(); 
+      navigate(ROUTES.EDITOR); 
+    } catch (error) {
+      setError('Неверный email или пароль');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
+  return (
     <div className={styles.branding}>
       <div className={styles.loginForm}>
         <div className={styles.loginHeader}>
           <h2>Добро пожаловать!</h2>
           <p>Войдите в свой аккаунт для продолжения работы</p>
         </div>
+
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -72,13 +87,9 @@ export function LogForm(props: LogFormProps) {
         <div className={styles.signupLink}>
           <p>
             Нет аккаунта?{' '}
-            <button 
-              type="button" 
-              onClick={props.onSwitchToRegister} 
-              className={styles.linkButton}
-            >
+            <Link to={ROUTES.REGISTER} className={styles.linkButton}>
               Зарегистрироваться
-            </button>
+            </Link>
           </p>
         </div>
       </div>

@@ -47,19 +47,17 @@ async function loginAccount(email: string, password: string) {
   }
 }
 
-async function loginOut(setIsLogged: React.Dispatch<React.SetStateAction<boolean>>) {
+async function loginOut() {
   try {
     const sessions = await getCurrentSession();
     
     if (!sessions || sessions.length === 0) {
-      setIsLogged(false); 
       return;
     }
 
     const sessionId = sessions[0].$id;
     await account.deleteSession({ sessionId });
 
-    setIsLogged(false);
   } catch (error) {
     console.log(error);
   }
@@ -74,4 +72,4 @@ export async function getCurrentSession() {
   }
 }
 
-export { createAccount, loginAccount, loginOut, getAccountStatus as checkAuthStatus };
+export { createAccount, loginAccount, loginOut, getAccountStatus };

@@ -6,7 +6,7 @@ import { clearSelection } from '../../store/slices/selectionSlice';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Toolbar.module.css';
-import { uploadImageFromUrlToStorage } from '../../store/functions_for_DB';
+import { uploadImageFromUrlToStorage, uploadImageToStorage } from '../../store/functions_for_DB';
 
 import addTextIcon from '../../assets/icons/add-text.png';
 import addImageIcon from '../../assets/icons/add-image.png';
@@ -51,47 +51,25 @@ export function ObjectControls() {
 
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>): void {
     const file = event.target.files?.[0];
-    
     if (!file || !currentSlideId) return;
 
-    if (!file.type.startsWith('image/')) {
-      console.log('Надо выбрать изображение, а не что-то другое');
-      return;
-    }
-
     setIsLoading(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
 
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result;
-      
-      if (dataUrl && typeof dataUrl === 'string') {
+    uploadImageToStorage(file)
+      .then(storageUrl => {
         dispatch(addImageObject({ 
           slideId: currentSlideId, 
-          src: dataUrl 
+          src: storageUrl 
         }));
-      }
-      
-      setIsLoading(false);
-      
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      
-      setShowImageInput(false);
-    };
-
-    reader.onerror = () => {
-      console.error('Ошибка при чтении файла');
-      setIsLoading(false);
-      
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    };
-
-    reader.readAsDataURL(file);
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки изображения в Storage:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setShowImageInput(false);
+      });
   }
 
   async function handleAddImageFromUrl(): Promise<void> {
@@ -105,12 +83,12 @@ export function ObjectControls() {
       dispatch(addImageObject({ 
         slideId: currentSlideId, 
         src: storageUrl 
-      })); 
+      }));
       
       setImageUrl('');
       setShowImageInput(false);
     } catch (error) {
-      console.error('Ошибка при загрузке изображения по URL:', error);
+      console.log('Ошибка при загрузке изображения по URL в Storage:', error);
     } finally {
       setIsLoading(false);
     }
@@ -202,8 +180,7 @@ export function ObjectControls() {
         onClick={handleDeleteSelectedObjects}
         icon={deleteObjectIcon}
         disabled={!hasSelection || isLoading}
-      >
-      </Button>
+      />
     </div>
   );
 }
