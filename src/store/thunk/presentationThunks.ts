@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getPresentationDB, saveToDB } from '../functions_for_DB';
+import { getPresentationDB, saveToDB } from '../functions/functions_for_DB';
 import { validatePresentation } from '../ajv/presentationSchema';
 import { setLoadedPresentation } from '../slices/presentationSlice';
 import { setPresentationId } from '../slices/idSlice';

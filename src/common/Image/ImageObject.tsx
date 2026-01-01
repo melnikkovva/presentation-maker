@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { changeObjectPosition, changeObjectSize } from '../../store/slices/objectsSlice';
 import { selectImageObjectById, selectSelectedObjects, isObjectSelected } from '../../store/selectors/presentationSelectors';
 import { PREVIEW_SCALE, MIN_DIV_HEIGHT, MIN_DIV_WIDTH, PLAYER_RATIO } from '../../store/data/const_for_presantation';
 import { useResize } from '../../hooks/useResize';
 import { ResizeHandles } from '../../hooks/ResizeHandle';
+import { getImageUrl, preloadImageForUI } from '../../store/functions/functions_for_DB'; 
 import styles from './ImageObject.module.css';
 
 type ImageObjectProps = {
@@ -23,6 +24,9 @@ export function ImageObject(props: ImageObjectProps) {
   const selectedObjects = useAppSelector(selectSelectedObjects);
   const isSelected = useAppSelector(state => isObjectSelected(state, props.objectId));
   const dispatch = useAppDispatch();
+  
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   let scale = props.isPreview ? PREVIEW_SCALE : 1;
   if (props.isPlayer) {
@@ -35,6 +39,31 @@ export function ImageObject(props: ImageObjectProps) {
 
   const currentX = object?.x ? object.x * scale : 0;
   const currentY = object?.y ? object.y * scale : 0;
+
+  useEffect(() => {
+    if (!object?.src) {
+      setImageSrc('');
+      setIsLoading(false);
+      return;
+    }
+
+    const loadImage = async () => {
+      setIsLoading(true);
+      try {
+        const url = getImageUrl(object.src);
+        setImageSrc(url);
+        
+        await preloadImageForUI(object.src);
+      } catch (error) {
+        console.error('Error loading image:', error);
+        setImageSrc(''); 
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [object?.src]); 
 
   const resize = useResize({
     width: object?.w ? object.w * scale : 100,
@@ -116,12 +145,27 @@ export function ImageObject(props: ImageObjectProps) {
       style={containerStyle}
       onMouseDown={props.onMouseDown}
     >
-      <img
-        src={object.src}
-        className={imageClass}
-        draggable={false}
-        alt=""
-      />
+      {isLoading ? (
+        <div className={styles.loadingPlaceholder}>
+          <div className={styles.spinner}></div>
+          <span>Загрузка изображения...</span>
+        </div>
+      ) : imageSrc ? (
+        <img
+          src={imageSrc}
+          className={imageClass}
+          draggable={false}
+          alt=""
+          onError={(e) => {
+            console.error('Error loading image:', object.src);
+            e.currentTarget.src = '/path/to/placeholder.png';
+          }}
+        />
+      ) : (
+        <div className={styles.errorPlaceholder}>
+          <span>Не удалось загрузить изображение</span>
+        </div>
+      )}
 
       {isSelected && isInteractive && !hasMultipleSelection && (
         <ResizeHandles onMouseDown={resize.onResizeHandleMouseDown} />

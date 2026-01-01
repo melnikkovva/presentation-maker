@@ -6,7 +6,7 @@ import { clearSelection } from '../../store/slices/selectionSlice';
 import { Button } from '../../common/Button/Button';
 import { Input } from '../../common/Input/Input';
 import styles from './Toolbar.module.css';
-import { uploadImageFromUrlToStorage, uploadImageToStorage } from '../../store/functions_for_DB';
+import { uploadImageFromUrlToStorage, uploadImageToStorage } from '../../store/functions/functions_for_DB';
 
 import addTextIcon from '../../assets/icons/add-text.png';
 import addImageIcon from '../../assets/icons/add-image.png';
@@ -57,10 +57,10 @@ export function ObjectControls() {
     if (fileInputRef.current) fileInputRef.current.value = '';
 
     uploadImageToStorage(file)
-      .then(storageUrl => {
+      .then(fileId => {
         dispatch(addImageObject({ 
           slideId: currentSlideId, 
-          src: storageUrl 
+          src: fileId
         }));
       })
       .catch(err => {
@@ -78,11 +78,11 @@ export function ObjectControls() {
     setIsLoading(true);
 
     try {
-      const storageUrl = await uploadImageFromUrlToStorage(imageUrl.trim());
+      const fileId = await uploadImageFromUrlToStorage(imageUrl.trim());
       
       dispatch(addImageObject({ 
         slideId: currentSlideId, 
-        src: storageUrl 
+        src: fileId  
       }));
       
       setImageUrl('');

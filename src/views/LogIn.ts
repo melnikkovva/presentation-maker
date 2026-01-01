@@ -1,9 +1,8 @@
 import { Client, Account, ID } from "appwrite";
-import { Endpoint, ProjectID } from "../store/data/const_for_presantation";
 
 export const client = new Client()
-                        .setProject(ProjectID)
-                        .setEndpoint(Endpoint);
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
                         
 const account = new Account(client);
 

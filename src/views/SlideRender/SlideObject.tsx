@@ -2,7 +2,6 @@ import { TextObject } from "../../common/Text/TextObject";
 import { ImageObject } from "../../common/Image/ImageObject";
 import { useDnd } from "../../hooks/useDragAndDrop";
 import type { SelectionItem } from "../../store/types/types_of_presentation";
-import { PLAYER_RATIO, PREVIEW_SCALE } from "../../store/data/const_for_presantation";
 
 type SlideObjectProps = {
     object: any;
@@ -33,11 +32,6 @@ export function SlideObject({
     const isSelected = selectedObjectIds.includes(objectId);
     const isPrimarySelected = selectionObjects[0]?.objectId === objectId;
 
-    let scale = isPreview ? PREVIEW_SCALE : 1;
-    if (isPlayer) {
-    scale = PLAYER_RATIO;
-    }
-
     const dnd = useDnd({
     startX: object.x,
     startY: object.y,
@@ -48,11 +42,15 @@ export function SlideObject({
         onSelectionChange(id, object.type, add), 
     });
 
-    const objectStyle = {
+    const isInteractive = !(isPreview || isPlayer);
+
+    const objectStyle = isInteractive && dnd.isDragging
+    ? {
         position: "absolute" as const,
         top: dnd.top,
         left: dnd.left,
-    };
+        }
+    : undefined;
 
     if (object.type === "text") {
         return (

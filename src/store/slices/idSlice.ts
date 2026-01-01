@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { getPresentationDB } from '../functions_for_DB';
+import { getPresentationDB } from '../functions/functions_for_DB';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Presentation } from '../types/types_of_presentation';
 import type { RootState } from '../store';

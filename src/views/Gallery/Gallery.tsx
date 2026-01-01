@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRowsByEmail } from '../../store/functions_for_DB';
+import { getRowsByEmail } from '../../store/functions/functions_for_DB';
 import { useAppSelector  } from '../../store/hooks';
 import { selectUserEmail } from '../../store/selectors/presentationSelectors';
 import { ROUTES } from '../../store/data/const_for_presantation';

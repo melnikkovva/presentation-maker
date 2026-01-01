@@ -6,6 +6,7 @@ import type { SelectionItem } from "../../store/types/types_of_presentation";
 import { SlideObject } from "./SlideObject";
 import { PLAYER_RATIO, PREVIEW_SCALE } from "../../store/data/const_for_presantation";
 import { useMemo } from "react";
+import { getImageUrl } from "../../store/functions/functions_for_DB";
 
 type SlideRenderProps = {
   slideId: string | null;
@@ -65,6 +66,9 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
 
   const handleObjectFinish = useMemo(() => {
     return (draggedObjectId: string) => (finalX: number, finalY: number) => {
+      const logicalX = finalX / scale;
+      const logicalY = finalY / scale;
+
       const isDraggedSelected = selectedObjectIds.includes(draggedObjectId);
       const hasMultiple = selectedObjectIds.length > 1;
 
@@ -72,15 +76,15 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
         const draggedObj = objects.find((o) => o.id === draggedObjectId);
         if (!draggedObj) return;
 
-        const deltaX = (finalX - draggedObj.x) * scale;
-        const deltaY = (finalY - draggedObj.y) * scale;
+        const deltaX = logicalX - draggedObj.x;
+        const deltaY = logicalY - draggedObj.y;
 
         const updates = selectedObjectIds.map((id) => {
           const obj = objects.find((o) => o.id === id)!;
           return {
             objectId: id,
-            x: (obj.x + deltaX) * scale,
-            y: (obj.y + deltaY) * scale,
+            x: obj.x + deltaX, 
+            y: obj.y + deltaY,
           };
         });
 
@@ -89,13 +93,13 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
         dispatch(
           updateObjectPosition({
             objectId: draggedObjectId,
-            x: finalX,
-            y: finalY,
+            x: logicalX, 
+            y: logicalY,
           })
         );
       }
     };
-  }, [selectedObjectIds, objects, dispatch]);
+  }, [selectedObjectIds, objects, dispatch, scale]);
 
   const handleSlideClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
@@ -106,16 +110,16 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
   if (!slide) return null;
 
   function getSlideBackgroundStyle(slideBackground: any): React.CSSProperties {
-    if (slideBackground.type === "color") {
-      return { backgroundColor: slideBackground.color };
-    } else {
-      return {
-        backgroundImage: `url(${slideBackground.src})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      };
-    }
+  if (slideBackground.type === "color") {
+    return { backgroundColor: slideBackground.color };
+  } else {
+    return {
+      backgroundImage: `url(${getImageUrl(slideBackground.src)})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    };
   }
+}
 
   const style: React.CSSProperties = {
     ...getSlideBackgroundStyle(slide.background),

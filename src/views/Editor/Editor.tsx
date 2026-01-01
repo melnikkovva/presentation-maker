@@ -15,6 +15,7 @@ import { generateNewPresentationId, clearPresentationId } from '../../store/slic
 import { ROUTES } from '../../store/data/const_for_presantation';
 import { loadPresentation, savePresentation } from '../../store/thunk/presentationThunks';
 
+
 type EditorProps = {
   onLogout: () => void;
 };

@@ -90,7 +90,6 @@ export function TextObject(props: TextObjectProps) {
     switch (object.textAlign) {
       case 'left': return styles.textContentLeft;
       case 'right': return styles.textContentRight;
-      case 'justify': return styles.textContentJustify;
       default: return styles.textContentCenter;
     }
   };

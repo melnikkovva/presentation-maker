@@ -39,7 +39,7 @@ export type Picture = {
 }
 
 export type TextDecoration = 'underline' | 'line-through' | 'none';
-export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+export type TextAlign = 'left' | 'center' | 'right';
 
 export type TextShadow = {
   x: number;

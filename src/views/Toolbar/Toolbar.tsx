@@ -33,7 +33,7 @@ export function Toolbar(props: ToolbarProps) {
 
       <div className={styles.toolbarSection}>
         <div className={styles.sectionTitle}>Экспорт</div>
-        <ExportControls />
+          <ExportControls/>
       </div>
 
       <div className={styles.toolbarSection}>
