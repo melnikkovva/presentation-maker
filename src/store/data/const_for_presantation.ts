@@ -28,7 +28,7 @@ export const DEFAULT_POSITIONS = {
     X: 100,
     Y: 100
 };
-
+export const WORKSPACE_SCALE = 0.5;
 export const SLIDE_WIDTH = 1000; 
 export const SLIDE_HEIGHT = 550; 
 export const PLAYER_RATIO = 1.4

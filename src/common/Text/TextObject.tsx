@@ -33,53 +33,56 @@ export function TextObject(props: TextObjectProps) {
   const isPartOfMultipleSelection = isSelected && hasMultipleSelection;
 
   const resize = useResize({
-    width: object?.w ? object.w * scale : 100,
-    height: object?.h ? object.h * scale : 50,
-    x: object?.x ? object.x * scale : 0,
-    y: object?.y ? object.y * scale : 0,
-    enabled: isInteractive && isSelected && !hasMultipleSelection,
-    onResize: (newWidth, newHeight, newX, newY) => {
-      if (object) {
-        const actualWidth = newWidth / scale;
-        const actualHeight = newHeight / scale;
-        const actualX = newX / scale;
-        const actualY = newY / scale;
-        dispatch(changeObjectSize({
-          objectId: object.id,
-          width: actualWidth,
-          height: actualHeight
-        }));
-        if (newX !== object.x * scale || newY !== object.y * scale) {
-          dispatch(changeObjectPosition({
-            objectId: object.id,
-            x: actualX,
-            y: actualY
-          }));
-        }
+      width: object?.w ? object.w * scale : 100,
+      height: object?.h ? object.h * scale : 100,
+      x: object?.x ? object.x * scale : 0,
+      y: object?.y ? object.y * scale : 0,
+      enabled: isInteractive && isSelected && !hasMultipleSelection,
+      preserveAspectRatio: false, 
+      minWidth: MIN_DIV_WIDTH * scale, 
+      minHeight: MIN_DIV_HEIGHT * scale,
+      onResize: (newWidth, newHeight, newX, newY) => {
+          if (object) {
+              const actualWidth = newWidth / scale;
+              const actualHeight = newHeight / scale;
+              const actualX = newX / scale;
+              const actualY = newY / scale;
+              
+              dispatch(changeObjectSize({ 
+                  objectId: object.id, 
+                  width: actualWidth, 
+                  height: actualHeight 
+              }));
+              
+              if (newX !== object.x * scale || newY !== object.y * scale) {
+                  dispatch(changeObjectPosition({ 
+                      objectId: object.id, 
+                      x: actualX, 
+                      y: actualY 
+                  }));
+              }
+          }
+      },
+      onResizeEnd: (newWidth, newHeight, newX, newY) => {
+          if (object) {
+              const actualWidth = newWidth / scale;
+              const actualHeight = newHeight / scale;
+              const actualX = newX / scale;
+              const actualY = newY / scale;
+              
+              dispatch(changeObjectSize({ 
+                  objectId: object.id, 
+                  width: actualWidth, 
+                  height: actualHeight 
+              }));
+              
+              dispatch(changeObjectPosition({ 
+                  objectId: object.id, 
+                  x: actualX, 
+                  y: actualY 
+              }));
+          }
       }
-    },
-    onResizeEnd: (newWidth, newHeight, newX, newY) => {
-      if (object) {
-        const actualWidth = newWidth / scale;
-        const actualHeight = newHeight / scale;
-        const actualX = newX / scale;
-        const actualY = newY / scale;
-        dispatch(changeObjectSize({
-          objectId: object.id,
-          width: actualWidth,
-          height: actualHeight
-        }));
-        if (newX !== object.x * scale || newY !== object.y * scale) {
-          dispatch(changeObjectPosition({
-            objectId: object.id,
-            x: actualX,
-            y: actualY
-          }));
-        }
-      }
-    },
-    minWidth: MIN_DIV_WIDTH,
-    minHeight: MIN_DIV_HEIGHT
   });
   
   if (!object) {

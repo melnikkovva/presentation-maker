@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MIN_DIV_HEIGHT, MIN_DIV_WIDTH } from '../store/data/const_for_presantation';
 
 
@@ -14,6 +14,7 @@ type ResizeArgs = {
     minWidth?: number,
     minHeight?: number,
     enabled?: boolean,
+    preserveAspectRatio?: boolean
 }
 
 type ResizeHandleState = {
@@ -47,6 +48,7 @@ export function useResize(args: ResizeArgs): ResizeResult {
         minWidth = MIN_DIV_WIDTH,
         minHeight = MIN_DIV_HEIGHT,
         enabled = true,
+        preserveAspectRatio = false,
     } = args
 
     const [resizeState, setResizeState] = useState<ResizeHandleState | null>(null)
@@ -56,6 +58,8 @@ export function useResize(args: ResizeArgs): ResizeResult {
         x,
         y
     })
+
+    const hasPositionChangedRef = useRef(false)
 
     function calculateNewSize(
         axis: ResizeHandleAxis,
@@ -71,68 +75,168 @@ export function useResize(args: ResizeArgs): ResizeResult {
         let newX = startX
         let newY = startY
 
-        const aspectRatio = startWidth / startHeight
+        const aspectRatio = preserveAspectRatio ? startWidth / startHeight : null
 
         switch (axis) {
             case 'e': 
                 newWidth = Math.max(minWidth, startWidth + deltaX)
                 break
             case 'w': 
-                const maxDeltaX = startWidth - minWidth
-                const actualDeltaX = Math.min(deltaX, maxDeltaX)
-                newWidth = Math.max(minWidth, startWidth - actualDeltaX)
-                newX = startX + actualDeltaX
+                const maxDeltaXLeft = startWidth - minWidth
+                const actualDeltaXLeft = Math.min(deltaX, maxDeltaXLeft)
+                newWidth = Math.max(minWidth, startWidth - actualDeltaXLeft)
+                if (actualDeltaXLeft === deltaX) {
+                    newX = startX + deltaX
+                } else {
+                    newX = startX + maxDeltaXLeft
+                }
                 break
             case 's': 
                 newHeight = Math.max(minHeight, startHeight + deltaY)
                 break
             case 'n': 
-                const maxDeltaY = startHeight - minHeight
-                const actualDeltaY = Math.min(deltaY, maxDeltaY)
-                newHeight = Math.max(minHeight, startHeight - actualDeltaY)
-                newY = startY + actualDeltaY
+                const maxDeltaYTop = startHeight - minHeight
+                const actualDeltaYTop = Math.min(deltaY, maxDeltaYTop)
+                newHeight = Math.max(minHeight, startHeight - actualDeltaYTop)
+                if (actualDeltaYTop === deltaY) {
+                    newY = startY + deltaY
+                } else {
+                    newY = startY + maxDeltaYTop 
+                }
                 break
-            case 'se':      
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    newWidth = Math.max(minWidth, startWidth + deltaX)
+            case 'se': 
+                if (preserveAspectRatio && aspectRatio) {
+                    const maxDeltaX = startWidth - minWidth
+                    const maxDeltaY = startHeight - minHeight
+                    
+                    const scaleX = 1 + Math.min(deltaX / startWidth, maxDeltaX / startWidth)
+                    const scaleY = 1 + Math.min(deltaY / startHeight, maxDeltaY / startHeight)
+                    const scale = Math.min(scaleX, scaleY)
+                    
+                    newWidth = Math.max(minWidth, startWidth * scale)
                     newHeight = newWidth / aspectRatio
                 } else {
+                    newWidth = Math.max(minWidth, startWidth + deltaX)
                     newHeight = Math.max(minHeight, startHeight + deltaY)
-                    newWidth = newHeight * aspectRatio
                 }
                 break
             case 'sw':
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    newWidth = Math.max(minWidth, startWidth - deltaX)
+                if (preserveAspectRatio && aspectRatio) {
+                    const maxDeltaXLeft = startWidth - minWidth
+                    const actualDeltaXLeft = Math.min(deltaX, maxDeltaXLeft)
+                    
+                    newWidth = Math.max(minWidth, startWidth - actualDeltaXLeft)
                     newHeight = newWidth / aspectRatio
+                    newHeight = Math.max(minHeight, newHeight)
+                    
+                    if (actualDeltaXLeft === deltaX) {
+                        newX = startX + deltaX
+                    } else {
+                        newX = startX + maxDeltaXLeft
+                    }
+                    
+                    const maxDeltaYBottom = startHeight - minHeight
+                    if (deltaY > maxDeltaYBottom) {
+                        newHeight = minHeight
+                    }
                 } else {
+                    const maxDeltaXLeft = startWidth - minWidth
+                    const actualDeltaXLeft = Math.min(deltaX, maxDeltaXLeft)
+                    
+                    newWidth = Math.max(minWidth, startWidth - actualDeltaXLeft)
                     newHeight = Math.max(minHeight, startHeight + deltaY)
-                    newWidth = newHeight * aspectRatio
+                    
+                    if (actualDeltaXLeft === deltaX) {
+                        newX = startX + deltaX
+                    } else {
+                        newX = startX + maxDeltaXLeft
+                    }
                 }
-                newX = startX + (startWidth - newWidth)
                 break
             case 'ne':
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (preserveAspectRatio && aspectRatio) {
+                    const maxDeltaYTop = startHeight - minHeight
+                    const actualDeltaYTop = Math.min(deltaY, maxDeltaYTop)
+                    
+                    newHeight = Math.max(minHeight, startHeight - actualDeltaYTop)
+                    newWidth = newHeight * aspectRatio
+                    newWidth = Math.max(minWidth, newWidth)
+                    
+                    if (actualDeltaYTop === deltaY) {
+                        newY = startY + deltaY
+                    } else {
+                        newY = startY + maxDeltaYTop
+                    }
+                    
+                    const maxDeltaXRight = startWidth - minWidth
+                    if (deltaX > maxDeltaXRight) {
+                        newWidth = minWidth
+                    }
+                } else {
+                    const maxDeltaYTop = startHeight - minHeight
+                    const actualDeltaYTop = Math.min(deltaY, maxDeltaYTop)
+                    
                     newWidth = Math.max(minWidth, startWidth + deltaX)
-                    newHeight = newWidth / aspectRatio
-                } else {
-                    newHeight = Math.max(minHeight, startHeight - deltaY)
-                    newWidth = newHeight * aspectRatio
+                    newHeight = Math.max(minHeight, startHeight - actualDeltaYTop)
+                    
+                    if (actualDeltaYTop === deltaY) {
+                        newY = startY + deltaY
+                    } else {
+                        newY = startY + maxDeltaYTop
+                    }
                 }
-                newY = startY + (startHeight - newHeight)
                 break
-            case 'nw':
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    newWidth = Math.max(minWidth, startWidth - deltaX)
+            case 'nw': 
+                if (preserveAspectRatio && aspectRatio) {
+                    const maxDeltaXLeft = startWidth - minWidth
+                    const maxDeltaYTop = startHeight - minHeight
+                    const actualDeltaXLeft = Math.min(deltaX, maxDeltaXLeft)
+                    const actualDeltaYTop = Math.min(deltaY, maxDeltaYTop)
+                    
+                    const scaleX = 1 - actualDeltaXLeft / startWidth
+                    const scaleY = 1 - actualDeltaYTop / startHeight
+                    const scale = Math.min(scaleX, scaleY)
+                    
+                    newWidth = Math.max(minWidth, startWidth * scale)
                     newHeight = newWidth / aspectRatio
+                    
+                    if (actualDeltaXLeft === deltaX) {
+                        newX = startX + deltaX
+                    } else {
+                        newX = startX + maxDeltaXLeft
+                    }
+                    
+                    if (actualDeltaYTop === deltaY) {
+                        newY = startY + deltaY
+                    } else {
+                        newY = startY + maxDeltaYTop
+                    }
                 } else {
-                    newHeight = Math.max(minHeight, startHeight - deltaY)
-                    newWidth = newHeight * aspectRatio
+                    const maxDeltaXLeft = startWidth - minWidth
+                    const maxDeltaYTop = startHeight - minHeight
+                    const actualDeltaXLeft = Math.min(deltaX, maxDeltaXLeft)
+                    const actualDeltaYTop = Math.min(deltaY, maxDeltaYTop)
+                    
+                    newWidth = Math.max(minWidth, startWidth - actualDeltaXLeft)
+                    newHeight = Math.max(minHeight, startHeight - actualDeltaYTop)
+                    
+                    if (actualDeltaXLeft === deltaX) {
+                        newX = startX + deltaX
+                    } else {
+                        newX = startX + maxDeltaXLeft
+                    }
+                    
+                    if (actualDeltaYTop === deltaY) {
+                        newY = startY + deltaY
+                    } else {
+                        newY = startY + maxDeltaYTop
+                    }
                 }
-                newX = startX + (startWidth - newWidth)
-                newY = startY + (startHeight - newHeight)
                 break
         }
+
+        newWidth = Math.max(minWidth, newWidth)
+        newHeight = Math.max(minHeight, newHeight)
 
         return { newWidth, newHeight, newX, newY }
     }
@@ -141,6 +245,10 @@ export function useResize(args: ResizeArgs): ResizeResult {
         if (!enabled) return
         
         event.preventDefault()
+        event.stopPropagation()
+
+        // Сбрасываем флаг при начале ресайза
+        hasPositionChangedRef.current = false
 
         setResizeState({
             axis,
@@ -171,6 +279,11 @@ export function useResize(args: ResizeArgs): ResizeResult {
                 resizeState.startY
             )
 
+            // Проверяем, изменилась ли позиция
+            if (newX !== resizeState.startX || newY !== resizeState.startY) {
+                hasPositionChangedRef.current = true
+            }
+
             setCurrentSize({
                 width: newWidth,
                 height: newHeight,
@@ -181,25 +294,47 @@ export function useResize(args: ResizeArgs): ResizeResult {
             onResize?.(newWidth, newHeight, newX, newY)
         }
 
-        const onMouseUp = () => {
+        const onMouseUp = (event: MouseEvent) => {
             if (resizeState?.isResizing) {
-                onResizeEnd?.(currentSize.width, currentSize.height, currentSize.x, currentSize.y)
-                setResizeState(null)
+                event.preventDefault()
+                
+                const deltaX = event.clientX - resizeState.mouseStartX
+                const deltaY = event.clientY - resizeState.mouseStartY
+                
+                // Используем последние рассчитанные значения
+                const { newWidth, newHeight, newX, newY } = calculateNewSize(
+                    resizeState.axis,
+                    deltaX,
+                    deltaY,
+                    resizeState.startWidth,
+                    resizeState.startHeight,
+                    resizeState.startX,
+                    resizeState.startY
+                )
+
+                // Всегда вызываем onResizeEnd с актуальными значениями
+                onResizeEnd?.(newWidth, newHeight, newX, newY)
+                
+                // Сбрасываем состояние только после вызова колбэков
+                setTimeout(() => {
+                    setResizeState(null)
+                }, 0)
             }
         }
 
         if (resizeState?.isResizing) {
             window.addEventListener('mousemove', onMouseMove)
-            window.addEventListener('mouseup', onMouseUp)
+            window.addEventListener('mouseup', onMouseUp, { once: true })
         }
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove)
             window.removeEventListener('mouseup', onMouseUp)
         }
-    }, [resizeState, onResize, onResizeEnd, currentSize])
+    }, [resizeState, onResize, onResizeEnd, preserveAspectRatio, minWidth, minHeight])
 
     useEffect(() => {
+        // Обновляем текущий размер только если не ресайзим
         if (!resizeState?.isResizing) {
             setCurrentSize({
                 width,

@@ -37,9 +37,6 @@ export function ImageObject(props: ImageObjectProps) {
   const hasMultipleSelection = selectedObjects.length > 1;
   const isPartOfMultipleSelection = isSelected && hasMultipleSelection;
 
-  const currentX = object?.x ? object.x * scale : 0;
-  const currentY = object?.y ? object.y * scale : 0;
-
   useEffect(() => {
     if (!object?.src) {
       setImageSrc('');
@@ -66,53 +63,56 @@ export function ImageObject(props: ImageObjectProps) {
   }, [object?.src]); 
 
   const resize = useResize({
-    width: object?.w ? object.w * scale : 100,
-    height: object?.h ? object.h * scale : 100,
-    x: object?.x ? object.x * scale : 0,
-    y: object?.y ? object.y * scale : 0,
-    enabled: isInteractive && isSelected && !hasMultipleSelection, 
-    onResize: (newWidth, newHeight, newX, newY) => {
-      if (object) {
-        const actualWidth = newWidth / scale;
-        const actualHeight = newHeight / scale;
-        const actualX = newX / scale;
-        const actualY = newY / scale;
-        dispatch(changeObjectSize({ 
-          objectId: object.id, 
-          width: actualWidth, 
-          height: actualHeight 
-        }));
-        if (newX !== currentX || newY !== currentY) {
-          dispatch(changeObjectPosition({ 
-            objectId: object.id, 
-            x: actualX, 
-            y: actualY 
-          }));
-        }
+      width: object?.w ? object.w * scale : 100,
+      height: object?.h ? object.h * scale : 100,
+      x: object?.x ? object.x * scale : 0,
+      y: object?.y ? object.y * scale : 0,
+      enabled: isInteractive && isSelected && !hasMultipleSelection,
+      preserveAspectRatio: false, 
+      minWidth: MIN_DIV_WIDTH * scale, 
+      minHeight: MIN_DIV_HEIGHT * scale,
+      onResize: (newWidth, newHeight, newX, newY) => {
+          if (object) {
+              const actualWidth = newWidth / scale;
+              const actualHeight = newHeight / scale;
+              const actualX = newX / scale;
+              const actualY = newY / scale;
+              
+              dispatch(changeObjectSize({ 
+                  objectId: object.id, 
+                  width: actualWidth, 
+                  height: actualHeight 
+              }));
+              
+              if (newX !== object.x * scale || newY !== object.y * scale) {
+                  dispatch(changeObjectPosition({ 
+                      objectId: object.id, 
+                      x: actualX, 
+                      y: actualY 
+                  }));
+              }
+          }
+      },
+      onResizeEnd: (newWidth, newHeight, newX, newY) => {
+          if (object) {
+              const actualWidth = newWidth / scale;
+              const actualHeight = newHeight / scale;
+              const actualX = newX / scale;
+              const actualY = newY / scale;
+              
+              dispatch(changeObjectSize({ 
+                  objectId: object.id, 
+                  width: actualWidth, 
+                  height: actualHeight 
+              }));
+              
+              dispatch(changeObjectPosition({ 
+                  objectId: object.id, 
+                  x: actualX, 
+                  y: actualY 
+              }));
+          }
       }
-    },
-    onResizeEnd: (newWidth, newHeight, newX, newY) => {
-      if (object) {
-        const actualWidth = newWidth / scale;
-        const actualHeight = newHeight / scale;
-        const actualX = newX / scale;
-        const actualY = newY / scale;
-        dispatch(changeObjectSize({ 
-          objectId: object.id, 
-          width: actualWidth, 
-          height: actualHeight 
-        }));
-        if (newX !== currentX || newY !== currentY) {
-          dispatch(changeObjectPosition({ 
-            objectId: object.id, 
-            x: actualX, 
-            y: actualY 
-          }));
-        }
-      }
-    },
-    minWidth: MIN_DIV_WIDTH,
-    minHeight: MIN_DIV_HEIGHT
   });
 
   if (!object) {
