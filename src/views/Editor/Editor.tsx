@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PresentationTitle } from '../PresentationTitle/PresentationTitle';
 import { Workspace } from '../Workspace/Workspace';
@@ -14,7 +13,8 @@ import { resetPresentation } from '../../store/slices/presentationSlice';
 import { generateNewPresentationId, clearPresentationId } from '../../store/slices/idSlice';
 import { ROUTES } from '../../store/data/const_for_presantation';
 import { loadPresentation, savePresentation } from '../../store/thunk/presentationThunks';
-
+import type { Presentation } from '../../store/types/types_of_presentation';
+import { EditorProvider } from '../Toolbar/EditorContext';
 
 type EditorProps = {
   onLogout: () => void;
@@ -42,7 +42,10 @@ export function Editor({ onLogout }: EditorProps) {
       dispatch(resetPresentation());
       dispatch(generateNewPresentationId());
     } else {
-      dispatch(loadPresentation(idFromUrl)).unwrap().catch(() => {
+      dispatch(loadPresentation(idFromUrl))
+      .unwrap()
+      .catch((error) => {
+        console.error('Ошибка загрузки презентации:', error);
         navigate(ROUTES.HOME);
       });
     }
@@ -59,7 +62,7 @@ export function Editor({ onLogout }: EditorProps) {
     return () => clearTimeout(timer);
   }, [title, slides, objects, presentationId]);
 
-  const buildPresentation = (): any => {
+  const buildPresentation = (): Presentation => {
     if (!email || !presentationId) throw new Error('Missing email or ID');
     return {
       id: presentationId,
@@ -74,12 +77,13 @@ export function Editor({ onLogout }: EditorProps) {
             obj.type === 'text'
               ? {
                   id: obj.id,
-                  type: 'text',
+                  type: 'text' as const,
                   x: obj.x,
                   y: obj.y,
                   w: obj.w,
                   h: obj.h,
-                  text: obj.text || '',
+                  content: obj.content,
+                  fontStyle:obj.fontStyle,
                   fontSize: obj.fontSize,
                   fontFamily: obj.fontFamily,
                   fontWeight: obj.fontWeight,
@@ -87,15 +91,17 @@ export function Editor({ onLogout }: EditorProps) {
                   textAlign: obj.textAlign,
                   color: obj.color,
                   shadow: obj.shadow,
+                  slideId: slide.id,
                 }
               : {
                   id: obj.id,
-                  type: 'image',
+                  type: 'image' as const,
                   x: obj.x,
                   y: obj.y,
                   w: obj.w,
                   h: obj.h,
                   src: obj.src || '',
+                  slideId: slide.id,
                 }
           ),
       })),
@@ -124,6 +130,7 @@ export function Editor({ onLogout }: EditorProps) {
   const [email, setEmail] = useState<string | null>(null);
 
   return (
+    <EditorProvider>
     <div className={styles.app}>
       <div className={styles.header}>
         <PresentationTitle />
@@ -138,5 +145,6 @@ export function Editor({ onLogout }: EditorProps) {
         <Workspace />
       </div>
     </div>
+    </EditorProvider>
   );
 }

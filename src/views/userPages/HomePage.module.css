@@ -4,55 +4,26 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #0f0f12;
-  color: #f0f0f5;
-  padding: 2rem;
-  font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  background: #ffffff;
+  color: #333;
+  font-family: 'Segoe UI', sans-serif;
   text-align: center;
 }
 
-.container h1 {
-  font-size: 3.2rem;
-  font-weight: 600;
-  margin-bottom: 2.5rem;
-  background: linear-gradient(90deg, #a4ff4e, #6effa3);
-  background-clip: text;
-  color: transparent;
-  letter-spacing: -0.5px;
-}
-
-.createButton,
-.galleryButton {
+.createButton {
   width: 100%;
   max-width: 360px;
-  padding: 18px 24px;
+  padding: 16px;
   margin: 12px 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  font-family: inherit;
+  background: #ff6f00;
+  color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.createButton {
-  background: #0a0a0d;
-  color: #a4ff4e;
-  border: 2px solid #a4ff4e;
 }
 
 .createButton:hover {
-  background: #121216;
-  color: #cfff85;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(164, 255, 78, 0.25);
-}
-
-.galleryButton {
-  background: #0a0a0d;
-  color: #8a8a9e;
-  border: 2px solid #3a3a4d;
+  background: #e05e00;
 }

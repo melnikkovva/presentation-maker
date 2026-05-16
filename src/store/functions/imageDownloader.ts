@@ -1,7 +1,6 @@
 export async function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; 
     
     img.onload = () => {
       resolve({
@@ -10,8 +9,8 @@ export async function getImageDimensions(src: string): Promise<{ width: number; 
       });
     };
     
-    img.onerror = (error) => {
-      reject(new Error(`Не удалось загрузить изображение: ${error}`));
+    img.onerror = () => {
+      reject(new Error('Не удалось загрузить изображение для определения размеров'));
     };
     
     img.src = src;
@@ -50,8 +49,8 @@ export async function getImageDimensionsFromFile(file: File): Promise<{ width: n
 export function scaleToFitSlide(
   width: number, 
   height: number, 
-  maxWidth: number = 1200, 
-  maxHeight: number = 675
+  maxWidth: number = 800, 
+  maxHeight: number = 600 
 ): { width: number; height: number } {
   if (width <= maxWidth && height <= maxHeight) {
     return { width, height };

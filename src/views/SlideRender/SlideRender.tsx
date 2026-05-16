@@ -1,9 +1,10 @@
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
-import { selectSlideById, selectObjectsBySlideId, selectSelectedObjects } from "../../store/selectors/presentationSelectors";
+import { selectSlideById, selectObjectsBySlideId, selectSelectedObjects, } from "../../store/selectors/presentationSelectors";
 import { setSelection, addToSelection, removeFromSelection } from "../../store/slices/selectionSlice";
 import { updateObjectPosition, updateObjectsPositions } from "../../store/slices/objectsSlice";
-import type { SelectionItem } from "../../store/types/types_of_presentation";
+import type { SelectionItem, TextObject as TextObjectType } from "../../store/types/types_of_presentation";
 import { SlideObject } from "./SlideObject";
+import { TextObjectView } from "../../common/Text/TextObjectView"; 
 import { PLAYER_RATIO, PREVIEW_SCALE } from "../../store/data/const_for_presantation";
 import { useMemo } from "react";
 import { getImageUrl } from "../../store/functions/functions_for_DB";
@@ -12,16 +13,21 @@ type SlideRenderProps = {
   slideId: string | null;
   isPreview?: boolean;
   isPlayer?: boolean;
+  mode?: 'edit' | 'view'; 
 };
 
-export function SlideRender({ slideId, isPreview = false, isPlayer = false }: SlideRenderProps) {
+export function SlideRender({ 
+  slideId, 
+  isPreview = false, 
+  isPlayer = false,
+  mode = 'edit' 
+}: SlideRenderProps) {
   const dispatch = useAppDispatch();
   const slide = useAppSelector(
     slideId ? selectSlideById(slideId) : () => null
   );
   const objects = useAppSelector(selectObjectsBySlideId(slideId || ""));
   const selectionObjects = useAppSelector(selectSelectedObjects);
-
   const selectedObjectIds = useMemo(
     () => selectionObjects.map((obj: SelectionItem) => obj.objectId),
     [selectionObjects]
@@ -35,7 +41,7 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
 
   let scale = isPreview ? PREVIEW_SCALE : 1;
   if (isPlayer) {
-  scale = PLAYER_RATIO;
+    scale = PLAYER_RATIO;
   }
 
   const handleSelectionChange = (
@@ -110,42 +116,55 @@ export function SlideRender({ slideId, isPreview = false, isPlayer = false }: Sl
   if (!slide) return null;
 
   function getSlideBackgroundStyle(slideBackground: any): React.CSSProperties {
-  if (slideBackground.type === "color") {
-    return { backgroundColor: slideBackground.color };
-  } else {
-    return {
-      backgroundImage: `url(${getImageUrl(slideBackground.src)})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    };
+    if (slideBackground.type === "color") {
+      return { backgroundColor: slideBackground.color };
+    } else {
+      return {
+        backgroundImage: `url(${getImageUrl(slideBackground.src)})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    }
   }
-}
 
   const style: React.CSSProperties = {
     ...getSlideBackgroundStyle(slide.background),
     position: "relative",
     width: "100%",
     height: "100%",
-    pointerEvents: (isPreview || isPlayer) ? "none" : "auto",
+    pointerEvents: (isPreview || isPlayer || mode === 'view') ? "none" : "auto",
   };
 
   return (
     <div style={style} onClick={handleSlideClick}>
       {objects.length > 0 ? (
-        objects.map((object) => (
-          <SlideObject
-            key={object.id}
-            object={object}
-            slideId={slideId || ""}
-            isPreview={isPreview}
-            isPlayer={isPlayer}
-            selectedObjectIds={selectedObjectIds}
-            selectionObjects={selectionObjects}
-            selectedObjectsWithPositions={selectedObjectsWithPositions}
-            onSelectionChange={handleSelectionChange}
-            onFinish={handleObjectFinish(object.id)}
-          />
-        ))
+        objects.map((object) => {
+          if (object.type === "text" && (isPreview || isPlayer || mode === 'view')) {
+            return (
+              <TextObjectView
+                key={object.id}
+                object={object as TextObjectType}
+                isPreview={isPreview}
+                isPlayer={isPlayer}
+              />
+            );
+          } else {
+            return (
+              <SlideObject
+                key={object.id}
+                object={object}
+                slideId={slideId || ""}
+                isPreview={isPreview}
+                isPlayer={isPlayer}
+                selectedObjectIds={selectedObjectIds}
+                selectionObjects={selectionObjects}
+                selectedObjectsWithPositions={selectedObjectsWithPositions}
+                onSelectionChange={handleSelectionChange}
+                onFinish={handleObjectFinish(object.id)}
+              />
+            );
+          }
+        })
       ) : (
         <div></div>
       )}

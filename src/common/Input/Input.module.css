@@ -3,24 +3,22 @@
   padding: 10px 4px;
   background: transparent;
   border: none;
-  border-bottom: 2px solid #444;
-  color: #ddd;
+  border-bottom: 2px solid #ccc;
+  color: #333;
   font-size: 15px;
   outline: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .input::placeholder {
-  color: #666;
+  color: #999;
 }
 
 .input:hover {
-  border-bottom-color: #777;
+  border-bottom-color: #999;
 }
 
 .input:focus {
-  border-bottom-color: #aaa;
-}
-
-.input:disabled {
-  opacity: 0.5;
+  border-bottom-color: #ff6f00;
+  box-shadow: inset 0 -1px 0 #ff6f00;
 }

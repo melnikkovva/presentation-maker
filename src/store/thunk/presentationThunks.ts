@@ -1,9 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getPresentationDB, saveToDB } from '../functions/functions_for_DB';
-import { validatePresentation } from '../ajv/presentationSchema';
 import { setLoadedPresentation } from '../slices/presentationSlice';
 import { setPresentationId } from '../slices/idSlice';
 import type { Presentation } from '../types/types_of_presentation';
+import { getImageDimensions, scaleToFitSlide } from '../functions/imageDownloader';
+import { addImageObjectWithId, updateImageObjectDimensions } from '../slices/objectsSlice';
 
 export const loadPresentation = createAsyncThunk(
   'presentation/loadPresentation',
@@ -15,9 +16,7 @@ export const loadPresentation = createAsyncThunk(
       }
 
       const data = JSON.parse(row.json);
-      if (!validatePresentation(data)) {
-        return rejectWithValue('Invalid presentation schema');
-      }
+
 
       dispatch(setLoadedPresentation(data));
       dispatch(setPresentationId(id));
@@ -38,6 +37,41 @@ export const savePresentation = createAsyncThunk(
     } catch (error) {
       console.error('Failed to save presentation:', error);
       return rejectWithValue('Save error');
+    }
+  }
+);
+
+
+export const addImageObjectWithDimensions = createAsyncThunk(
+  'objects/addImageObjectWithDimensions',
+  async (
+    { slideId, src }: { slideId: string; src: string },
+    { dispatch }
+  ) => {
+    try {
+      const tempId = crypto.randomUUID();
+      
+      dispatch(addImageObjectWithId({
+        id: tempId,
+        slideId,
+        src,
+      }));
+      
+      const dimensions = await getImageDimensions(src);
+      const scaled = scaleToFitSlide(dimensions.width, dimensions.height);
+      
+      dispatch(updateImageObjectDimensions({
+        id: tempId,
+        width: scaled.width,
+        height: scaled.height,
+        originalWidth: dimensions.width,
+        originalHeight: dimensions.height,
+      }));
+      
+      return tempId;
+    } catch (error) {
+      console.error('Ошибка при добавлении изображения:', error);
+      throw error;
     }
   }
 );

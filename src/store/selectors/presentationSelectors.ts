@@ -1,4 +1,5 @@
 import type { RootState } from '../store';
+import type { TextObject } from '../types/types_of_presentation';
 
 export const selectTitle = (state: RootState) => state.present.title;
 export const selectSlidesState = (state: RootState) => state.present.slides;
@@ -36,10 +37,9 @@ export const selectImageObjectById = (objectId: string) => (state: RootState) =>
   return object && object.type === 'image' ? object : null;
 };
 
-export const selectTextObjectById = (objectId: string) => (state: RootState) => {
-  const objects = selectAllObjects(state);
-  const object = objects.find(obj => obj.id === objectId);
-  return object && object.type === 'text' ? object : null;
+export const selectTextObjectById = (state: RootState, objectId: string): TextObject | null => {
+  const object = state.present.objects.objects.find(obj => obj.id === objectId);
+  return object && object.type === 'text' ? object as TextObject : null;
 };
 
 export const selectSelectedObjects = (state: RootState) => state.present.selection;

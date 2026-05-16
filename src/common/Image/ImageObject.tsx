@@ -148,7 +148,7 @@ export function ImageObject(props: ImageObjectProps) {
       {isLoading ? (
         <div className={styles.loadingPlaceholder}>
           <div className={styles.spinner}></div>
-          <span>Загрузка изображения...</span>
+          <span></span>
         </div>
       ) : imageSrc ? (
         <img

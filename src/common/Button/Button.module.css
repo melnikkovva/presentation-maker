@@ -2,19 +2,26 @@
   padding: 10px 14px;
   margin: 6px;
   border: none;
-  border-radius: 14px;
+  border-radius: 8px;
   cursor: pointer;
-  background: #222;
-  color: #eee;
+  background: #ffffff;
+  color: rgb(0, 0, 0);
   font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s ease;
 }
 
-.button:hover {
-  background: #333;
+.button:hover:not(:disabled) {
+  background: #e05e00;
 }
 
-.button:active {
-  background: #111;
+.button:active:not(:disabled) {
+  background: #c04d00;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .iconButton {
@@ -23,14 +30,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #ff6f00;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.iconButton:hover {
+  background: #e05e00;
 }
 
 .icon {
-  width: 28px;
-  height: 28px;
-}
-
-.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  width: 24px;
+  height: 24px;
+  filter: invert(1); 
 }

@@ -1,3 +1,5 @@
+import type { JSONContent } from '@tiptap/react';
+
 export type Presentation = {
   id: string;
   title: string;
@@ -50,16 +52,17 @@ export type TextShadow = {
 
 export type TextObject = BaseSlideObject & {
   type: 'text';
-  text: string;
-  fontSize: number;
-  fontFamily: string;
-  fontWeight: string;
-  textDecoration: string;
+  content: JSONContent; 
+  fontSize?: number;
+  fontFamily?: string;
+  fontStyle: 'normal' | 'italic';
+  fontWeight?: string;
+  textDecoration?: string;
   textAlign: TextAlign;
-  color: string;
+  color?: string;
   shadow: TextShadow | null;
-  slideId: string; 
-}
+  slideId: string;
+};
 
 export type ImageObject = BaseSlideObject & {
   type: 'image';

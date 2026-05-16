@@ -1,23 +1,19 @@
 import { TextObject } from "../../common/Text/TextObject";
 import { ImageObject } from "../../common/Image/ImageObject";
 import { useDnd } from "../../hooks/useDragAndDrop";
-import type { SelectionItem } from "../../store/types/types_of_presentation";
+import type { SelectionItem, SlideObject } from "../../store/types/types_of_presentation";
 
 type SlideObjectProps = {
-    object: any;
+    object: SlideObject;
     slideId: string;
     isPreview: boolean;
     isPlayer: boolean;
     selectedObjectIds: string[];
     selectionObjects: SelectionItem[];
     selectedObjectsWithPositions: Array<{ id: string; x: number; y: number }>;
-    onSelectionChange: (
-        objectId: string,
-        objectType: "text" | "image",
-        addToSelection: boolean
-    ) => void;
+    onSelectionChange: ( objectId: string, objectType: "text" | "image", addToSelection: boolean ) => void;
     onFinish: (finalX: number, finalY: number) => void;
-    };
+};
 
 export function SlideObject({
     object,
@@ -33,13 +29,13 @@ export function SlideObject({
     const isPrimarySelected = selectionObjects[0]?.objectId === objectId;
 
     const dnd = useDnd({
-    startX: object.x,
-    startY: object.y,
-    onFinish,
-    isSelected,
-    objectId,
-    onSelectionChange: (id: string, add: boolean) =>
-        onSelectionChange(id, object.type, add), 
+        startX: object.x,
+        startY: object.y,
+        onFinish,
+        isSelected,
+        objectId,
+        onSelectionChange: (id: string, add: boolean) =>
+            onSelectionChange(id, object.type, add), 
     });
 
     const isInteractive = !(isPreview || isPlayer);
@@ -54,29 +50,27 @@ export function SlideObject({
 
     if (object.type === "text") {
         return (
-        <TextObject
-            objectId={objectId}
-            isPreview={isPreview}
-            isPlayer={isPlayer}
-            isDragging={dnd.isDragging}
-            isSelected={isSelected}
-            isPrimarySelected={isPrimarySelected}
-            onMouseDown={dnd.onMouseDown}
-            style={objectStyle}
-        />
+            <TextObject
+                objectId={objectId}
+                isPreview={isPreview}
+                isPlayer={isPlayer}
+                isSelected={isSelected}
+                onMouseDown={dnd.onMouseDown}
+                style={objectStyle}
+            />
         );
     } else if (object.type === "image") {
         return (
-        <ImageObject
-            objectId={objectId}
-            isPreview={isPreview}
-            isPlayer={isPlayer}
-            isDragging={dnd.isDragging}
-            isSelected={isSelected}
-            isPrimarySelected={isPrimarySelected}
-            onMouseDown={dnd.onMouseDown}
-            style={objectStyle}
-        />
+            <ImageObject
+                objectId={objectId}
+                isPreview={isPreview}
+                isPlayer={isPlayer}
+                isDragging={dnd.isDragging}
+                isSelected={isSelected}
+                isPrimarySelected={isPrimarySelected}
+                onMouseDown={dnd.onMouseDown}
+                style={objectStyle}
+            />
         );
     }
 

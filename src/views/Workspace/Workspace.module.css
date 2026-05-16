@@ -1,12 +1,16 @@
 .workspace {
   flex: 1;
-  background: #181818;
+  background: #f9f9f9; 
   padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .slideContainer {
   width: 700px;
   height: 450px;
-  background: #000;
-  border: 1px solid #444;
+  background: #ffffff; 
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }

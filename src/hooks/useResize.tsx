@@ -247,7 +247,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
         event.preventDefault()
         event.stopPropagation()
 
-        // Сбрасываем флаг при начале ресайза
         hasPositionChangedRef.current = false
 
         setResizeState({
@@ -279,7 +278,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
                 resizeState.startY
             )
 
-            // Проверяем, изменилась ли позиция
             if (newX !== resizeState.startX || newY !== resizeState.startY) {
                 hasPositionChangedRef.current = true
             }
@@ -301,7 +299,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
                 const deltaX = event.clientX - resizeState.mouseStartX
                 const deltaY = event.clientY - resizeState.mouseStartY
                 
-                // Используем последние рассчитанные значения
                 const { newWidth, newHeight, newX, newY } = calculateNewSize(
                     resizeState.axis,
                     deltaX,
@@ -312,10 +309,8 @@ export function useResize(args: ResizeArgs): ResizeResult {
                     resizeState.startY
                 )
 
-                // Всегда вызываем onResizeEnd с актуальными значениями
                 onResizeEnd?.(newWidth, newHeight, newX, newY)
                 
-                // Сбрасываем состояние только после вызова колбэков
                 setTimeout(() => {
                     setResizeState(null)
                 }, 0)
@@ -334,7 +329,6 @@ export function useResize(args: ResizeArgs): ResizeResult {
     }, [resizeState, onResize, onResizeEnd, preserveAspectRatio, minWidth, minHeight])
 
     useEffect(() => {
-        // Обновляем текущий размер только если не ресайзим
         if (!resizeState?.isResizing) {
             setCurrentSize({
                 width,

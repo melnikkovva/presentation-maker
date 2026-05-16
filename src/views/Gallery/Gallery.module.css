@@ -1,74 +1,100 @@
+body {
+  font-family: "Geologica", sans-serif;
+}
 .container {
-  padding: 24px;
-  background-color: #0a0a0a;
-  min-height: 100vh;
-  color: #f0f0f0;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 24px 32px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .title {
-  font-size: 2.2rem;
-  margin: 0 0 24px 0;
-  font-weight: 800;
-  background: linear-gradient(90deg, #a0ff00, #4cff00);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: -0.5px;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #333;
 }
 
-.backButton {
-  background: transparent;
-  border: 2px solid #4cff00;
-  color: #4cff00;
-  padding: 8px 16px;
-  font-size: 1rem;
-  font-weight: 700;
+.tableHeader {
+  display: grid;
+  grid-template-columns: 40px 1fr 160px 180px;
+  gap: 16px;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+
+.tableBody {
+  margin-top: 8px;
+}
+
+.emptyRow {
+  padding: 24px 0;
+  text-align: center;
+  color: #777;
+  font-style: italic;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 40px 1fr 160px 180px;
+  gap: 16px;
+  padding: 12px 8px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 24px;
-  font-family: inherit;
+  transition: background-color 0.15s;
 }
 
-.backButton:hover {
-  background-color: rgba(76, 255, 0, 0.1);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 255, 0, 0.25);
+.tableRow:hover {
+  background-color: #f5f5f5;
 }
 
-.backButton:active {
-  transform: translateY(0);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  margin-top: 12px;
-}
-
-.card {
-  background: #121212;
-  border: 1px solid #2a2a2a;
-  border-radius: 10px;
-  padding: 16px;
-  cursor: pointer;
+.presentationIcon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #ff6b00 0%, #ff9e00 100%);
+  border-radius: 4px;
   position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.presentationIcon::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background: white;
+  border-radius: 2px;
+}
+
+.iconCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleCell,
+.dateCell,
+.ownerCell {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.cardTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #ffffff;
-  line-height: 1.3;
+.titleCell {
+  font-weight: 500;
+  justify-content: flex-start;
 }
 
-.cardEmail {
-  font-size: 0.875rem;
+.dateCell,
+.ownerCell {
+  justify-content: flex-start;
   color: #666;
-  margin: 0;
-  font-style: italic;
 }

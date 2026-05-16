@@ -19,7 +19,7 @@ export function HomePage() {
       <button onClick={handleCreateNew} className={styles.createButton}>
         Создать новую презентацию
       </button>
-      <button onClick={() => navigate(ROUTES.GALLERY)} className={styles.galleryButton}>
+      <button onClick={() => navigate(ROUTES.GALLERY)} className={styles.createButton}>
         Открыть галерею
       </button>
     </div>

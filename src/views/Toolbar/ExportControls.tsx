@@ -14,11 +14,11 @@ export function ExportControls() {
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'px',
-    format: [800, 600],
+    format: [1000, 550],
   });
 
   try {
-    await convertToPdf(doc, slides, objects, 1, { width: 800, height: 600 });
+    await convertToPdf(doc, slides, objects, 1, { width: 1000, height: 550 });
     doc.save(`${title || 'presentation'}.pdf`);
   } catch (error) {
     console.error('Ошибка при экспорте в PDF:', error);

@@ -1,129 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500&display=swap');
+*{
+  margin: 0;
+}
 
 .container {
   height: 100vh;
-  background: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Rajdhani', 'Orbitron', sans-serif;
-  overflow: hidden;
-}
-
-.slideArea {
-  flex: 1;
+  background-color: #121212; 
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px;
+  overflow: hidden;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .slideWrapper {
-  width: var(--slide-width, 800px);
-  height: var(--slide-height, 450px);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow:
-    0 0 20px rgba(0, 255, 200, 0.1),
-    inset 0 0 8px rgba(0, 255, 200, 0.05);
-  background: #050505;
   position: relative;
+  width: var(--slide-width, 960px);
+  height: var(--slide-height, 540px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.controls {
+.overlayControls {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 16px;
-  padding: 12px 0 20px;
-  background: transparent;
-  margin-top: -20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
 }
 
-.navButtonLeft {
-  width: 40px;
-  height: 40px;
-  margin-top: -100px;
-  position: absolute;
-  margin-left: -150px;
+.navButton {
+  width: 36px;
+  height: 36px;
+  background: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 17, 17, 0.7);
-  color: rgb(255, 255, 255);
-  border-radius: 50%;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s;
 }
 
-.navButtonRight {
-  width: 40px;
-  height: 40px;
-  margin-top: -100px;
-  position: absolute;
-  margin-left: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(17, 17, 17, 0.7);
-  color: rgb(255, 255, 255);
-  border-radius: 50%;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
+.navButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
-.navButton.disabled {
-  color: #040;
-  border-color: #040;
-  background: rgba(10, 10, 10, 0.7);
+.navButton:disabled {
+  background: #555;
   cursor: not-allowed;
-  opacity: 0.5;
-  transform: none;
 }
 
 .slideCounter {
-  min-width: 80px;
-  text-align: center;
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 1px;
-  color: #0a0;
-  opacity: 0.9;
+  color: white;
+  min-width: 60px;
+  text-align: center;
 }
 
 .backButton {
   padding: 6px 14px;
-  background: rgba(17, 17, 17, 0.7);
-  color: rgb(255, 255, 255);
-  border: 1px solid rgb(173, 181, 181);
-  border-radius: 4px;
+  background: transparent;
+  color: #ff6f00;
+  border: 1px solid #ff6f00;
+  border-radius: 20px;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-  margin-top: -100px;
-  position: absolute;
+  font-size: 13px;
+  transition: background 0.2s;
 }
 
+.backButton:hover {
+  background: rgba(255, 111, 0, 0.1);
+}
 
-.loading,
 .error {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #0f0;
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-  background: #000;
+  color: #ff6f00;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20vh;
 }
