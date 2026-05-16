@@ -82,4 +82,5 @@ export function DraggableSlideRender({ slideId, index, onReorder, onClick }: Dra
             </div>
         </div>
     );
+
 }
